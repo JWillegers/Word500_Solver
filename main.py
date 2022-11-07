@@ -11,6 +11,13 @@ def start_game():
         guess = input('What did you guess? answer format: word [space] amount green [space] amount yellow [space] amount red')
         word_found, possible_words = reduce_words.process_guess(guess, possible_words)
         turn_counter += 1
+        if len(possible_words) > 10:
+            print(len(possible_words), 'left')
+        else:
+            s = 'words left: '
+            for w in possible_words:
+                s += w + ' '
+            print(s)
     if word_found:
         print('Congrats, you won')
     else:
