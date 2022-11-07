@@ -10,7 +10,7 @@ def process_guess(guess: str, possible_words):
     if green == 5:
         #if 5 green, you won the game
         return True, guess_word
-    if red == 5:
+    elif red == 5:
         #if 5 red, remove all words with any of those 5 letters in them
         characters_guess_word = set(guess_word)
         for w in possible_words:
@@ -25,7 +25,35 @@ def process_guess(guess: str, possible_words):
         for w in possible_words:
             # get list of character of the words in the possible word list
             characters_w = []
-            for c in w[0]:
+            for c in w:
                 characters_w.append(c)
+            if yellow == 0: #only greens
+                #why not combine the 2 ifs? because I don't want to be difficult with the else
+                if match_greens(characters_guess_word, characters_w) == green:
+                    new_list.append(w)
+            elif green == 0: #only yellow
+                if match_yellows(characters_guess_word, characters_w) == yellow:
+                    new_list.append(w)
+            else:
+                test = True
 
     return False, new_list
+
+#for word a and word b, count how often a[i] == b[i], where a[i] and b[i] are char at index i of each word
+def match_greens(characters_guess_word, characters_w):
+    count = 0
+    for i in range(len(characters_guess_word)):
+        if characters_guess_word[i] == characters_w[i]:
+            count += 1
+    return count
+
+#
+def match_yellows(characters_guess_word, characters_w):
+    #TODO double letters
+    count = 0
+    for i in range(len(characters_guess_word)):
+        for j in range(len(characters_w)):
+            if i != j:
+                if characters_guess_word[i] == characters_w[j]:
+                    count += 1
+    return count
