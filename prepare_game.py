@@ -19,7 +19,11 @@ def get_words(difficulty, testmode = False):
         if difficulty == 'easy':
             word_guesses = remove_words_with_jqxz(word_guesses)
 
-    return possible_words, word_guesses
+    #remove unique letter count
+    new_list = []
+    for w in word_guesses:
+        new_list.append(w[0])
+    return possible_words, new_list
 
 #remove words that don't have 5 unique letters
 def remove_repeat_letters(words):
