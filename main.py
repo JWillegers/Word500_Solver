@@ -3,17 +3,21 @@ import reduce_words
 
 
 def start_game():
+    #asking for difficulty
     input_accepted = False
     while not input_accepted:
         difficulty = input('Which difficult do you want to play on? (easy/medium/hard)')
         input_accepted = difficulty == 'easy' or difficulty == 'medium' or difficulty == 'hard'
         if not input_accepted:
             print('Input not accepted, please try again')
+    #prepare game
     possible_words, possible_words = prepare_game.get_words(difficulty)
     word_found = False
     turn_counter = 1
+    #playing the game
     while not word_found and turn_counter <= 8:
         input_accepted = False
+        #ask for word and colors
         while not input_accepted:
             guess = input('What did you guess? answer format: word [space] amount green [space] amount yellow [space] amount red')
             split = guess.split(' ')
@@ -29,6 +33,7 @@ def start_game():
             except ValueError:
                 print('Make sure the \"amount [color]\" is a number. Try again')
 
+        #process guess
         word_found, possible_words = reduce_words.process_guess(guess, possible_words)
         turn_counter += 1
         if not word_found:
