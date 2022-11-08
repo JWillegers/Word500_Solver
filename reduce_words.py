@@ -27,57 +27,26 @@ def process_guess(guess: str, possible_words):
             characters_w = []
             for c in w:
                 characters_w.append(c)
-            if yellow == 0: #only greens
-                #why not combine the 2 ifs? because I don't want to be difficult with the else
-                if match_greens(characters_guess_word, characters_w) == green:
-                    new_list.append(w)
-            elif green == 0: #only yellow
-                if match_yellows(characters_guess_word, characters_w) == yellow:
-                    new_list.append(w)
-            else:
-                if match_words(characters_guess_word, characters_w, green, yellow):
-                    new_list.append(w)
+            if match_words(characters_guess_word, characters_w, green, yellow):
+                new_list.append(w)
 
     return False, new_list
 
-#for word a and word b, count how often a[i] == b[i], where a[i] and b[i] are char at index i of each word
-def match_greens(characters_guess_word, characters_w):
-    count = 0
-    for i in range(len(characters_guess_word)):
-        if characters_guess_word[i] == characters_w[i]:
-            count += 1
-    return count
-
-#
-def match_yellows(characters_guess_word, characters_w):
-    count = 0
-    list_w = []
-    for w in characters_w:
-        list_w.append([w, False]) #boolean indicates if character is match to a character in characters_guess_word
-    #if any letters are at the same position at both words, that letter will be marked checked (True)
-    #example: beans and rains -> n, s will be marked checked, but a will not
-    for i in range(len(characters_guess_word)):
-        if characters_guess_word[i] == list_w[i][0]:
-            list_w[i][1] = True
-    for i in range(len(characters_guess_word)):
-        for j in range(len(list_w)):
-            if i != j and not list_w[j][1]: #if index different and letter not marked checked
-                if characters_guess_word[i] == list_w[j][0]: #if letters are the same
-                    list_w[j][1] = True
-                    count += 1
-                    break #break for-loop j
-    return count
-
 def match_words(characters_guess_word, characters_w, green ,yellow):
+    list_gw = []
     list_w = []
     for w in characters_w:
         list_w.append([w, False])  # boolean indicates if character is match to a character in characters_guess_word
+    for w in characters_guess_word:
+        list_gw.append([w, False])  # boolean indicates if character is match to a character in characters_guess_word
+
 
     #check how many greens there are
     count_green = 0
     for i in range(len(characters_guess_word)):
         if characters_guess_word[i] == list_w[i][0]:
             count_green += 1
+            list_gw[i][1] = True
             list_w[i][1] = True
 
     if green != count_green:
@@ -86,12 +55,13 @@ def match_words(characters_guess_word, characters_w, green ,yellow):
     #check how many yellows there are
     count_yellow = 0
     for i in range(len(characters_guess_word)):
-        for j in range(len(list_w)):
-            if i != j and not list_w[j][1]: #if index different and letter not marked checked
-                if characters_guess_word[i] == list_w[j][0]: #if letters are the same
-                    list_w[j][1] = True
-                    count_yellow += 1
-                    break #break for-loop j
+        if not list_gw[i][1]:
+            for j in range(len(list_w)):
+                if i != j and not list_w[j][1]: #if index different and letter not marked checked
+                    if list_gw[i][0] == list_w[j][0]: #if letters are the same
+                        list_w[j][1] = True
+                        count_yellow += 1
+                        break #break for-loop j
 
     return count_yellow == yellow
 
