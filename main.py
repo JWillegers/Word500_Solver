@@ -32,7 +32,7 @@ def start_game():
         word_found, possible_words = reduce_words.process_guess(guess, possible_words)
         turn_counter += 1
         if not word_found:
-            if len(possible_words) > 10:
+            if len(possible_words) > 20:
                 print(len(possible_words), 'left')
             else:
                 s = 'words left: '

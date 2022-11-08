@@ -8,7 +8,7 @@ Instead of knowing if a letter is green, yellow or grey (red in word500),
 the player only gets to know how many letters are green, yellow and red.
 
 ##Techniques used
-
+* I started off by reducing the word list based on the amount of greens and yellows I got
 
 
 
