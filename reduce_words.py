@@ -35,7 +35,8 @@ def process_guess(guess: str, possible_words):
                 if match_yellows(characters_guess_word, characters_w) == yellow:
                     new_list.append(w)
             else:
-                test = True
+                if match_words(characters_guess_word, characters_w, green, yellow):
+                    new_list.append(w)
 
     return False, new_list
 
@@ -66,3 +67,31 @@ def match_yellows(characters_guess_word, characters_w):
                     count += 1
                     break #break for-loop j
     return count
+
+def match_words(characters_guess_word, characters_w, green ,yellow):
+    list_w = []
+    for w in characters_w:
+        list_w.append([w, False])  # boolean indicates if character is match to a character in characters_guess_word
+
+    #check how many greens there are
+    count_green = 0
+    for i in range(len(characters_guess_word)):
+        if characters_guess_word[i] == list_w[i][0]:
+            count_green += 1
+            list_w[i][1] = True
+
+    if green != count_green:
+        return False
+
+    #check how many yellows there are
+    count_yellow = 0
+    for i in range(len(characters_guess_word)):
+        for j in range(len(list_w)):
+            if i != j and not list_w[j][1]: #if index different and letter not marked checked
+                if characters_guess_word[i] == list_w[j][0]: #if letters are the same
+                    list_w[j][1] = True
+                    count_yellow += 1
+                    break #break for-loop j
+
+    return count_yellow == yellow
+

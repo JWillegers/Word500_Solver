@@ -35,9 +35,9 @@ class TestStringMethods(unittest.TestCase):
         self.assertEqual(possible_words, ['steer'])
 
     def test_1_yellow_no_doubles(self):
-        word_found, possible_words = reduce_words.process_guess('takes 0 1 4', ['pilot', 'skill', 'guest', 'stare', 'steak', 'token'])
+        word_found, possible_words = reduce_words.process_guess('takes 0 1 4', ['pilot', 'skill', 'guest', 'stare', 'steak', 'token', 'beech'])
         self.assertFalse(word_found)
-        self.assertEqual(possible_words, ['pilot'])
+        self.assertEqual(possible_words, ['pilot', 'beech'])
 
     def test_2_yellow_no_doubles(self):
         word_found, possible_words = reduce_words.process_guess('takes 0 2 3', ['pilot', 'skill', 'guest', 'stare', 'steak', 'token'])
@@ -72,6 +72,11 @@ class TestStringMethods(unittest.TestCase):
         word_found, possible_words = reduce_words.process_guess('perez 0 2 3', ['skele', 'sekle', 'sklee', 'sacks', 'snake'])
         self.assertFalse(word_found)
         self.assertEqual(possible_words, ['skele'])
+
+    def test_1_green_1_yellow(self):
+        word_found, possible_words = reduce_words.process_guess('snake 1 1 3', ['house', 'rains', 'wrong', 'brass', 'skill'])
+        self.assertFalse(word_found)
+        self.assertEqual(possible_words, ['house', 'brass', 'skill'])
 
 
 if __name__ == '__main__':
