@@ -49,11 +49,20 @@ def match_greens(characters_guess_word, characters_w):
 
 #
 def match_yellows(characters_guess_word, characters_w):
-    #TODO double letters
     count = 0
+    list_w = []
+    for w in characters_w:
+        list_w.append([w, False]) #boolean indicates if character is match to a character in characters_guess_word
+    #if any letters are at the same position at both words, that letter will be marked checked (True)
+    #example: beans and rains -> n, s will be marked checked, but a will not
     for i in range(len(characters_guess_word)):
-        for j in range(len(characters_w)):
-            if i != j:
-                if characters_guess_word[i] == characters_w[j]:
+        if characters_guess_word[i] == list_w[i][0]:
+            list_w[i][1] = True
+    for i in range(len(characters_guess_word)):
+        for j in range(len(list_w)):
+            if i != j and not list_w[j][1]: #if index different and letter not marked checked
+                if characters_guess_word[i] == list_w[j][0]: #if letters are the same
+                    list_w[j][1] = True
                     count += 1
+                    break #break for-loop j
     return count

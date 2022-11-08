@@ -59,5 +59,20 @@ class TestStringMethods(unittest.TestCase):
         self.assertFalse(word_found)
         self.assertEqual(possible_words, ['steak'])
 
+    def test_green_doubles(self):
+        word_found, possible_words = reduce_words.process_guess('songs 1 0 4', ['steel', 'stork', 'steam', 'steer'])
+        self.assertFalse(word_found)
+        self.assertEqual(possible_words, ['steel', 'stork', 'steam', 'steer'])
+
+        word_found, possible_words = reduce_words.process_guess('songs 1 0 4', ['bears', 'silly',   'storm', 'sacks'])
+        self.assertFalse(word_found)
+        self.assertEqual(possible_words, ['bears', 'silly',   'storm'])
+
+    def test_yellow_doubles(self):
+        word_found, possible_words = reduce_words.process_guess('perez 0 2 3', ['skele', 'sekle', 'sklee', 'sacks', 'snake'])
+        self.assertFalse(word_found)
+        self.assertEqual(possible_words, ['skele'])
+
+
 if __name__ == '__main__':
     unittest.main()
