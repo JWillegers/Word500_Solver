@@ -17,3 +17,4 @@ the player only gets to know how many letters are green, yellow and red.
 * 3Blue1Brown video on wordle: https://www.youtube.com/watch?v=v68zYyaEmEA
     * Corresponding GitHub: https://github.com/3b1b/videos/tree/master/_2022/wordle
 * python unittest: https://docs.python.org/3/library/unittest.html
+* Tkinter: https://realpython.com/python-gui-tkinter/
