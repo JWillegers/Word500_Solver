@@ -4,12 +4,15 @@ import prepare_game
 
 #change these number for changing screen size
 #warning: some stuff might overlap if numbers are too small
+import reduce_words
+
 width = 1600
 height = 900
 
 allowed_words = []
 words_still_possible = []
 label_mistake = None
+left_list = None
 
 bg_color = '#121212'
 txt_color = '#A27B5C'
@@ -104,12 +107,13 @@ def build_game_screen():
 
     #making frames
     #sticky makes background fill the whole frame
-    right_frame = tk.Frame(window, bg='blue')
-    right_frame.grid(row=0, column=0, sticky='nesw')
+    left_frame = tk.Frame(window, bg='pink')
+    left_frame.grid(row=0, column=0, sticky='nesw')
     middle_frame = tk.Frame(window, bg=bg_color)
     middle_frame.grid(row=0, column=1, sticky='nesw')
-    left_frame = tk.Frame(window, bg='pink')
-    left_frame.grid(row=0, column=2, sticky='nesw')
+    right_frame = tk.Frame(window, bg='blue')
+    right_frame.grid(row=0, column=2, sticky='nesw')
+
 
     #configuring columns and rows such that they fill the whole window
     window.columnconfigure(0, weight=2)
@@ -119,20 +123,22 @@ def build_game_screen():
 
     right_title = tk.Label(
         right_frame,
-        text='Guess suggestions',
+        text='Other',
         bg=bg_color,
         fg=txt_color
     )
     right_title.pack(pady=5)
     left_title = tk.Label(
         left_frame,
-        text='Other',
+        text='Guess suggestions',
         bg=bg_color,
-        fg=txt_color
+        fg=txt_color,
+        font=('Arial', int(height / 50))
     )
     left_title.pack(pady=5)
 
     create_middle_frame()
+    update_left_frame()
 
 
 def create_middle_frame():
@@ -184,6 +190,19 @@ def create_middle_frame():
     middle_frame.columnconfigure(6, weight=1)
     middle_frame.columnconfigure(column_max, weight=5)
 
+def update_left_frame():
+    global left_list
+    if left_list != None:
+        left_list.destroy()
+
+    word_list = ''
+    max_words = 30
+    for i in range(min(len(words_still_possible), max_words)):
+        word_list += words_still_possible[i]
+        if i != min(len(words_still_possible), max_words) - 1:
+            word_list += '\n'
+    left_list = tk.Label(left_frame, text=word_list, font=('Arial', int(height / 50)), bg=bg_color, fg=txt_color)
+    left_list.pack(pady=20)
 
 def check_guess(event):
     #getting global variables
@@ -198,7 +217,7 @@ def check_guess(event):
         msg = '' #error message
         word = '' #guessed word
         green = 0
-        yellow = 0;
+        yellow = 0
         red = 0
         if not label_mistake == None: #destroy old label_mistake
             label_mistake.destroy()
@@ -242,6 +261,9 @@ def check_guess(event):
 
 
 def process_guess(word, green, yellow, red):
-    test = True
+    global words_still_possible
+    guess = word + ' ' + str(green) + ' ' + str(yellow) + ' ' + str(red)
+    wordfound, words_still_possible = reduce_words.process_guess(guess, words_still_possible)
+    update_left_frame()
 
 run()
