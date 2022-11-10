@@ -13,8 +13,9 @@ def process_guess(guess: str, possible_words):
     elif red == 5:
         #if 5 red, remove all words with any of those 5 letters in them
         characters_guess_word = set(guess_word)
+
         for w in possible_words:
-            characters_w = set(w[0])
+            characters_w = set(w)
             if len(characters_w.intersection(characters_guess_word)) == 0:
                 new_list.append(w)
     else:

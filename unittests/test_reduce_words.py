@@ -13,6 +13,9 @@ class TestStringMethods(unittest.TestCase):
         word_found, possible_words = reduce_words.process_guess('award 0 0 5', ['award', 'pilot', 'house', 'quote'])
         self.assertFalse(word_found)
         self.assertEqual(['pilot', 'house', 'quote'], possible_words)
+        word_found, possible_words = reduce_words.process_guess('feast 0 0 5', ['baaed', 'pilot', 'house', 'quote'])
+        self.assertFalse(word_found)
+        self.assertEqual([], possible_words)
 
     def test_1_green(self):
         word_found, possible_words = reduce_words.process_guess('steel 1 0 4', ['songs', 'stork', 'steam', 'steer'])
