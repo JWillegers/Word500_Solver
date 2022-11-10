@@ -21,6 +21,7 @@ def run():
     window.geometry(str(width) + 'x' + str(height))
     window.resizable(False, False)
     window.configure(bg=bg_color)
+    window.bind('<Return>', check_guess)
 
     home_screen()
     window.mainloop() #show window (and interact with it)
@@ -109,7 +110,7 @@ def build_game_screen():
 
     #configuring columns and rows such that they fill the whole window
     window.columnconfigure(0, weight=2)
-    window.columnconfigure(1, weight=3)
+    window.columnconfigure(1, weight=2)
     window.columnconfigure(2, weight=2)
     window.rowconfigure(0, weight=1)
 
@@ -131,9 +132,7 @@ def build_game_screen():
     create_middle_frame()
 
 def create_middle_frame():
-
-    row_max = 9
-
+    row_max = 11
     middle_title = tk.Label(
         middle_frame,
         text='Word500',
@@ -145,23 +144,40 @@ def create_middle_frame():
 
     entry_boxes = []
 
+    #creating input frames for letters and numbers
     for row in range(1, 9):
         entry_row = []
-        for column in range(1, 9):
+        for column in range(1, 10):
             bg = input_bg_color
-            if column == 6:
+            fg = input_txt_color
+            if column == 7:
                 bg = 'green'
-            elif column == 7:
-                bg = 'yellow'
+                fg = 'black'
             elif column == 8:
+                bg = 'yellow'
+                fg = 'black'
+            elif column == 9:
                 bg = 'red'
-            entry = tk.Entry(middle_frame, fg=input_txt_color, bg=bg)
-            entry.grid(row=row, column=column)
-            entry_row.append(entry)
+                fg = 'black'
+
+            if column != 6:
+                entry = tk.Entry(middle_frame, fg=fg, bg=bg, width=4, font=('Arial', int(height / 50)), justify=tk.CENTER)
+                entry.grid(row=row, column=column, padx=2, pady=5, ipady=10)
+                entry_row.append(entry)
         entry_boxes.append(entry_row)
 
-    middle_frame.columnconfigure(0, weight=1)
-    middle_frame.columnconfigure(row_max, weight=1)
+    #creating guess counter to keep track of how many guesses are done
+    global guess_counter
+    guess_counter = 0
+
+    #spacing
+    middle_frame.columnconfigure(0, weight=5)
+    middle_frame.columnconfigure(6, weight=1)
+    middle_frame.columnconfigure(row_max, weight=5)
+
+def check_guess():
+    if 'middle_frame' in globals() and 'guess_counter' in globals(): #checking if we are not on main screen
+        print('hi')
 
 
 run()
