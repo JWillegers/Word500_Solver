@@ -16,28 +16,29 @@ input_color = '#2C3639'
 color4 = '#DCD7C9'
 
 def run():
+    global window
     window = tk.Tk(className='Word500 solver by JWillegers')  # create window
     window.geometry(str(width) + 'x' + str(height))
     window.resizable(False, False)
     window.configure(bg=bg_color)
 
-    home_screen(window)
+    home_screen()
     window.mainloop() #show window (and interact with it)
 
 
-def home_screen(window):
-    global middle_frame
-    middle_frame = tk.Frame(window, bg=bg_color)
-    middle_frame.pack()
+def home_screen():
+    global home_frame
+    home_frame = tk.Frame(window, bg=bg_color)
+    home_frame.pack()
 
-    greeting = tk.Label(middle_frame, text='Word500 solver by JWillegers', font=('Arial', int(height / 20)), fg=txt_color, bg=bg_color)
+    greeting = tk.Label(home_frame, text='Word500 solver by JWillegers', font=('Arial', int(height / 20)), fg=txt_color, bg=bg_color)
     greeting.pack(pady=int(height/50))
 
-    select = tk.Label(middle_frame, text='Start by selecting a difficulty', font=('Arial', int(height / 40)), fg=txt_color, bg=bg_color)
+    select = tk.Label(home_frame, text='Start by selecting a difficulty', font=('Arial', int(height / 40)), fg=txt_color, bg=bg_color)
     select.pack(pady=int(height/50))
 
     button_easy = tk.Button(
-        middle_frame,
+        home_frame,
         text='Easy',
         width=20,
         height=2,
@@ -49,7 +50,7 @@ def home_screen(window):
     button_easy.pack(pady=int(height/50))
 
     button_medium = tk.Button(
-        middle_frame,
+        home_frame,
         text='Medium',
         width=20,
         height=2,
@@ -60,7 +61,7 @@ def home_screen(window):
     )
     button_medium.pack(pady=int(height/50))
     button_hard = tk.Button(
-        middle_frame,
+        home_frame,
         text='Hard',
         width=20,
         height=2,
@@ -91,7 +92,45 @@ def start_game(difficulty):
 
 def build_game_screen():
     #first remove all old widgets
-    for widget in middle_frame.winfo_children():
-        widget.destroy()
+    home_frame.destroy()
+
+    global middle_frame
+    global right_frame
+    global left_frame
+
+    #making frames
+    #sticky makes background fill the whole frame
+    right_frame = tk.Frame(window, bg='blue')
+    right_frame.grid(row=0, column=0, sticky='nesw')
+    middle_frame = tk.Frame(window, bg=bg_color)
+    middle_frame.grid(row=0, column=1, sticky='nesw')
+    left_frame = tk.Frame(window, bg='pink')
+    left_frame.grid(row=0, column=2, sticky='nesw')
+
+    #configuring columns and rows such that they fill the whole window
+    window.columnconfigure(0, weight=2)
+    window.columnconfigure(1, weight=3)
+    window.columnconfigure(2, weight=2)
+    window.rowconfigure(0, weight=1)
+
+
+    middle_title = tk.Label(
+        middle_frame,
+        text='grid',
+    )
+    middle_title.pack(pady=5)
+    right_title = tk.Label(
+        right_frame,
+        text='Guess suggestions',
+    )
+    right_title.pack(pady=5)
+    left_title = tk.Label(
+        left_frame,
+        text='Other',
+    )
+    left_title.pack(pady=5)
+
+
+
 
 run()
