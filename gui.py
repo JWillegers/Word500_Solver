@@ -9,6 +9,7 @@ height = 900
 
 allowed_words = []
 words_still_possible = []
+label_mistake = None
 
 bg_color = '#121212'
 txt_color = '#A27B5C'
@@ -87,6 +88,8 @@ def hard():
 
 
 def start_game(difficulty):
+    global allowed_words
+    global words_still_possible
     allowed_words, words_still_possible = prepare_game.get_words(difficulty)
     build_game_screen()
 
@@ -132,7 +135,11 @@ def build_game_screen():
     create_middle_frame()
 
 def create_middle_frame():
-    row_max = 11
+    global middle_frame
+    global column_max
+    column_max = 12
+
+
     middle_title = tk.Label(
         middle_frame,
         text='Word500',
@@ -140,8 +147,9 @@ def create_middle_frame():
         fg=txt_color,
         font=('Arial', int(height / 50)),
     )
-    middle_title.grid(row=0, columnspan=row_max + 1, pady=25)
+    middle_title.grid(row=0, columnspan=column_max + 1, pady=25)
 
+    global entry_boxes
     entry_boxes = []
 
     #creating input frames for letters and numbers
@@ -173,11 +181,49 @@ def create_middle_frame():
     #spacing
     middle_frame.columnconfigure(0, weight=5)
     middle_frame.columnconfigure(6, weight=1)
-    middle_frame.columnconfigure(row_max, weight=5)
+    middle_frame.columnconfigure(column_max, weight=5)
 
-def check_guess():
+def check_guess(event):
+    #getting global variables
+    global entry_boxes
+    global column_max
+    global label_mistake
+
     if 'middle_frame' in globals() and 'guess_counter' in globals(): #checking if we are not on main screen
-        print('hi')
+        global guess_counter
+        mistake_found = False
+        box_counter = 0
+        msg = ''
+        word = ''
+        value = 0
+        if not label_mistake == None:
+            label_mistake.destroy()
+        for input in entry_boxes[guess_counter]:
+            if len(input.get()) != 1:
+                mistake_found = True
+                msg = 'Please enter only one character per field'
+                break
+            elif box_counter >= 5:
+                try:
+                    value += int(input.get())
+                except:
+                    mistake_found = True
+                    msg = 'Please put a number in the green, yellow, and red box'
+            else:
+                word += input.get()
+
+            box_counter += 1
+        if msg == '' and word.lower() not in allowed_words:
+            mistake_found = True
+            msg = 'Not a valid word'
+        elif msg == '' and value != 5:
+            mistake_found = True
+            msg = 'Numbers in the green, yellow and red box should add up to 5'
+        if mistake_found:
+            label_mistake = tk.Label(middle_frame, text=msg, bg=bg_color, fg=txt_color, font=('Arial', int(height / 60)))
+            label_mistake.grid(row=9, columnspan=column_max + 1, pady=10)
+        else:
+            guess_counter += 1
 
 
 run()
