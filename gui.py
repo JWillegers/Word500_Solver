@@ -12,8 +12,8 @@ words_still_possible = []
 
 bg_color = '#121212'
 txt_color = '#A27B5C'
-input_color = '#2C3639'
-color4 = '#DCD7C9'
+input_bg_color = '#2C3639'
+input_txt_color = '#DCD7C9'
 
 def run():
     global window
@@ -44,8 +44,8 @@ def home_screen():
         height=2,
         command=easy,
         font=('Arial', int(height/50)),
-        fg=color4,
-        bg=input_color
+        fg=input_txt_color,
+        bg=input_bg_color
     )
     button_easy.pack(pady=int(height/50))
 
@@ -56,8 +56,8 @@ def home_screen():
         height=2,
         command=medium,
         font=('Arial', int(height / 50)),
-        fg=color4,
-        bg=input_color
+        fg=input_txt_color,
+        bg=input_bg_color
     )
     button_medium.pack(pady=int(height/50))
     button_hard = tk.Button(
@@ -67,8 +67,8 @@ def home_screen():
         height=2,
         command=hard,
         font=('Arial', int(height / 50)),
-        fg=color4,
-        bg=input_color
+        fg=input_txt_color,
+        bg=input_bg_color
     )
     button_hard.pack(pady=int(height/50))
 
@@ -113,24 +113,55 @@ def build_game_screen():
     window.columnconfigure(2, weight=2)
     window.rowconfigure(0, weight=1)
 
-
-    middle_title = tk.Label(
-        middle_frame,
-        text='grid',
-    )
-    middle_title.pack(pady=5)
     right_title = tk.Label(
         right_frame,
         text='Guess suggestions',
+        bg=bg_color,
+        fg=txt_color
     )
     right_title.pack(pady=5)
     left_title = tk.Label(
         left_frame,
         text='Other',
+        bg=bg_color,
+        fg=txt_color
     )
     left_title.pack(pady=5)
 
+    create_middle_frame()
 
+def create_middle_frame():
+
+    row_max = 9
+
+    middle_title = tk.Label(
+        middle_frame,
+        text='Word500',
+        bg=bg_color,
+        fg=txt_color,
+        font=('Arial', int(height / 50)),
+    )
+    middle_title.grid(row=0, columnspan=row_max + 1, pady=25)
+
+    entry_boxes = []
+
+    for row in range(1, 9):
+        entry_row = []
+        for column in range(1, 9):
+            bg = input_bg_color
+            if column == 6:
+                bg = 'green'
+            elif column == 7:
+                bg = 'yellow'
+            elif column == 8:
+                bg = 'red'
+            entry = tk.Entry(middle_frame, fg=input_txt_color, bg=bg)
+            entry.grid(row=row, column=column)
+            entry_row.append(entry)
+        entry_boxes.append(entry_row)
+
+    middle_frame.columnconfigure(0, weight=1)
+    middle_frame.columnconfigure(row_max, weight=1)
 
 
 run()
