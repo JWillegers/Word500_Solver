@@ -134,6 +134,7 @@ def build_game_screen():
 
     create_middle_frame()
 
+
 def create_middle_frame():
     global middle_frame
     global column_max
@@ -183,6 +184,7 @@ def create_middle_frame():
     middle_frame.columnconfigure(6, weight=1)
     middle_frame.columnconfigure(column_max, weight=5)
 
+
 def check_guess(event):
     #getting global variables
     global entry_boxes
@@ -192,38 +194,54 @@ def check_guess(event):
     if 'middle_frame' in globals() and 'guess_counter' in globals(): #checking if we are not on main screen
         global guess_counter
         mistake_found = False
-        box_counter = 0
-        msg = ''
-        word = ''
-        value = 0
-        if not label_mistake == None:
+        box_counter = 0 #input box
+        msg = '' #error message
+        word = '' #guessed word
+        green = 0
+        yellow = 0;
+        red = 0
+        if not label_mistake == None: #destroy old label_mistake
             label_mistake.destroy()
+
+        #cheking input
         for input in entry_boxes[guess_counter]:
-            if len(input.get()) != 1:
+            if len(input.get()) != 1: #Check that every inputbox has exactly 1 character
                 mistake_found = True
                 msg = 'Please enter only one character per field'
                 break
-            elif box_counter >= 5:
+            elif box_counter >= 5: #check if the last 3 inputboxes are numbers
                 try:
-                    value += int(input.get())
+                    match box_counter:
+                        case 5:
+                            green = int(input.get())
+                        case 6:
+                            yellow = int(input.get())
+                        case 7:
+                            red = int(input.get())
                 except:
                     mistake_found = True
                     msg = 'Please put a number in the green, yellow, and red box'
-            else:
+            else: #add letter to word
                 word += input.get()
-
             box_counter += 1
+        #check if guess is a valid word
         if msg == '' and word.lower() not in allowed_words:
             mistake_found = True
             msg = 'Not a valid word'
-        elif msg == '' and value != 5:
+        #check that green + yellow + red = 5
+        elif msg == '' and green + yellow + red != 5:
             mistake_found = True
             msg = 'Numbers in the green, yellow and red box should add up to 5'
+        #display messages or
         if mistake_found:
             label_mistake = tk.Label(middle_frame, text=msg, bg=bg_color, fg=txt_color, font=('Arial', int(height / 60)))
             label_mistake.grid(row=9, columnspan=column_max + 1, pady=10)
         else:
+            process_guess(word, green, yellow, red)
             guess_counter += 1
 
+
+def process_guess(word, green, yellow, red):
+    test = True
 
 run()
