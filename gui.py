@@ -262,8 +262,5 @@ def check_guess(event):
             guess_counter += 1
 
 
-
-
-
 run()
 
