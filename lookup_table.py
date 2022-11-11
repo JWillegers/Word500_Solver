@@ -13,6 +13,11 @@ such that it looks like:
 house 500 014 113
 pilot 014 500 014
 stare 113 014 500
+
+which is stored like
+house:500, 014, 113
+pilot:014, 500, 014
+stare:113, 014, 500
 '''
 
 lookup_table = {}
@@ -62,8 +67,10 @@ def create_lookup_table():
             file.write(word_new_row + ':' + line + '\n')
             seen_words += 1
 
+
 def get_lookup_table():
     return lookup_table
+
 
 def load_lookup_table():
     global lookup_table
@@ -74,5 +81,7 @@ def load_lookup_table():
             codes = split[1].split(', ')
             numbers = [int(i) for i in codes]
             lookup_table[split[0]] = numbers
+
+
 if __name__ == '__main__':
     create_lookup_table()
