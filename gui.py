@@ -1,13 +1,11 @@
-import copy
-import math
 import tkinter as tk
-
 import prepare_game
+import reduce_words
+import pandas as pd
+import numpy as np
 
 #change these number for changing screen size
 #warning: some stuff might overlap if numbers are too small
-import reduce_words
-
 width = 1600
 height = 900
 
@@ -15,7 +13,6 @@ height = 900
 allowed_words = []
 words_still_possible = []
 words_entropy = []
-patterns = []
 label_mistake = None
 left_list = None
 
@@ -99,13 +96,6 @@ def start_game(difficulty):
     global allowed_words
     global words_still_possible
     allowed_words, words_still_possible = prepare_game.get_words(difficulty)
-
-    #create patterns
-    global patterns
-    for g in range(6):
-        for y in range(6-g):
-            patterns.append(str(g) + ' ' + str(y) + ' ' + str(5-g-y))
-
     build_game_screen()
 
 def build_game_screen():
@@ -291,17 +281,8 @@ def get_recommendations():
     where p(x) is the p(x) is the change that [green, yellow, red] occurs
         p(x)=len(reduced_words_still_possible)/len(current_words_still_possible)
     '''
-    lenCWSP = len(words_still_possible)
-    for w in allowed_words:
-        entropy = 0 #entropy for w
-        wsp = copy.deepcopy(words_still_possible) #deepcopy words_still_possible
-        for pattern in patterns:
-            w += ' ' + pattern
-            wordfound, wsp = reduce_words.process_guess(w, wsp)
-            px = len(wsp) / lenCWSP
-            entropy += px * math.log2(1/px)
-        entropy = round(entropy, 2)
-        words_entropy.append([w, entropy])
+    df = pd.DataFrame(columns=['word', '0 0 5', '0 1 4', '0 2 3', '0 3 2', '0 4 1', '0 5 0', '1 0 4', '1 1 3', '1 2 2', '1 3 1', '1 4 0', '2 0 3', '2 1 2', '2 2 1', '2 3 0', '3 0 2', '3 1 1', '3 2 0', '4 0 1', '4 1 0', '5 0 0'])
+
 
 
 run()

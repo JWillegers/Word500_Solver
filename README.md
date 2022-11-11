@@ -1,5 +1,5 @@
 #Word500
-This is my attempt at creating a solver for [word500](C:\Users\jonat\PycharmProjects\AdventOfCode2022), a wordle inspired game.
+This is my attempt at creating a solver for [word500](https://www.word500.com/#), a wordle inspired game.
 
 ##The game
 In 8 guesses or fewer, the player needs to find a 5-letter word. 
@@ -8,14 +8,15 @@ Instead of knowing if a letter is green, yellow or grey (red in word500),
 the player only gets to know how many letters are green, yellow and red.
 
 ##Techniques used
-* I started off by reducing the word list based on the amount of greens and yellows I got
+* Having a file that known if we have 2 words, how many greens, yellows and reds we get
 * Build a GUI with tkinter
 * Solver using information theory video from 3B1B
   * Word frequency [TODO]
   * Entropy: E[information]=sum of all x (p(x) * information) [TODO]
 
 
-
+##Needed libraries
+* Pandas
 
 ##Sources
 * 3Blue1Brown video on wordle: https://www.youtube.com/watch?v=v68zYyaEmEA

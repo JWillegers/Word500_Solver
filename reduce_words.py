@@ -58,11 +58,37 @@ def match_words(characters_guess_word, characters_w, green ,yellow):
     for i in range(len(characters_guess_word)):
         if not list_gw[i][1]:
             for j in range(len(list_w)):
-                if i != j and not list_w[j][1]: #if index different and letter not marked checked
-                    if list_gw[i][0] == list_w[j][0]: #if letters are the same
-                        list_w[j][1] = True
-                        count_yellow += 1
-                        break #break for-loop j
+                if i != j and not list_w[j][1] and list_gw[i][0] == list_w[j][0]: #if index different and letter not marked checked
+                    list_w[j][1] = True
+                    count_yellow += 1
+                    break #break for-loop j
 
     return count_yellow == yellow
 
+
+def reverse_search(aw, wsp):
+    list_aw = []
+    list_wsp = []
+    green = 0
+    yellow = 0
+
+    for c in aw:
+        list_aw.append([c, False])
+    for c in wsp:
+        list_wsp.append([c, False])
+
+    for i in range(len(list_aw)):
+        if list_aw[i][0] == list_wsp[i][0]:
+            list_aw[i][1] = True
+            list_wsp[i][1] = True
+            green += 1
+
+    for i in range(len(list_aw)):
+        if not list_aw[i][1]:
+            for j in range(len(list_wsp)):
+                if i != j and not list_wsp[j][1] and list_aw[i][0] == list_wsp[j][0]:
+                    list_wsp[j][1] = True
+                    yellow += 1
+                    break #break for-loop j
+
+    return str(green) + ' ' + str(yellow) + ' ' + str(5-green-yellow)
