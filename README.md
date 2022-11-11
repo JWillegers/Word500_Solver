@@ -9,6 +9,10 @@ the player only gets to know how many letters are green, yellow and red.
 
 ##Techniques used
 * I started off by reducing the word list based on the amount of greens and yellows I got
+* Build a GUI with tkinter
+* Solver using information theory video from 3B1B
+  * Word frequency [TODO]
+  * Entropy: E[information]=sum of all x (p(x) * information) [TODO]
 
 
 

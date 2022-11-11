@@ -1,3 +1,5 @@
+import copy
+import math
 import tkinter as tk
 
 import prepare_game
@@ -9,8 +11,11 @@ import reduce_words
 width = 1600
 height = 900
 
+#global variables
 allowed_words = []
 words_still_possible = []
+words_entropy = []
+patterns = []
 label_mistake = None
 left_list = None
 
@@ -94,8 +99,14 @@ def start_game(difficulty):
     global allowed_words
     global words_still_possible
     allowed_words, words_still_possible = prepare_game.get_words(difficulty)
-    build_game_screen()
 
+    #create patterns
+    global patterns
+    for g in range(6):
+        for y in range(6-g):
+            patterns.append(str(g) + ' ' + str(y) + ' ' + str(5-g-y))
+
+    build_game_screen()
 
 def build_game_screen():
     #first remove all old widgets
@@ -138,6 +149,7 @@ def build_game_screen():
     left_title.pack(pady=5)
 
     create_middle_frame()
+    get_recommendations()
     update_left_frame()
 
 
@@ -192,14 +204,14 @@ def create_middle_frame():
 
 def update_left_frame():
     global left_list
-    if left_list != None:
+    if left_list is not None:
         left_list.destroy()
 
     word_list = ''
     max_words = 30
-    for i in range(min(len(words_still_possible), max_words)):
-        word_list += words_still_possible[i]
-        if i != min(len(words_still_possible), max_words) - 1:
+    for i in range(min(len(words_entropy), max_words)):
+        word_list += words_entropy[i][0] + ' ' + str(words_entropy[i][1])
+        if i != min(len(words_entropy), max_words) - 1:
             word_list += '\n'
     left_list = tk.Label(left_frame, text=word_list, font=('Arial', int(height / 50)), bg=bg_color, fg=txt_color)
     left_list.pack(pady=20)
@@ -264,6 +276,33 @@ def process_guess(word, green, yellow, red):
     global words_still_possible
     guess = word + ' ' + str(green) + ' ' + str(yellow) + ' ' + str(red)
     wordfound, words_still_possible = reduce_words.process_guess(guess, words_still_possible)
+    get_recommendations()
     update_left_frame()
 
+
+def get_recommendations():
+    global words_still_possible
+    global allowed_words
+    global words_entropy
+    words_entropy.clear()
+    ''' 
+    Entropy = E[Information] = sum p(x)*Information, all x = sum p(x)*log2(1/p(x)), all x
+    where Information=log2(1/p(x))
+    where p(x) is the p(x) is the change that [green, yellow, red] occurs
+        p(x)=len(reduced_words_still_possible)/len(current_words_still_possible)
+    '''
+    lenCWSP = len(words_still_possible)
+    for w in allowed_words:
+        entropy = 0 #entropy for w
+        wsp = copy.deepcopy(words_still_possible) #deepcopy words_still_possible
+        for pattern in patterns:
+            w += ' ' + pattern
+            wordfound, wsp = reduce_words.process_guess(w, wsp)
+            px = len(wsp) / lenCWSP
+            entropy += px * math.log2(1/px)
+        entropy = round(entropy, 2)
+        words_entropy.append([w, entropy])
+
+
 run()
+
