@@ -1,38 +1,33 @@
 '''
-Create a 2D array like this:
-house [house] [pilot] [stare]
-pilot [house] [pilot] [stare]
-stare [house] [pilot] [stare]
+entropy_table.txt format
+word:[005: [words]], [014: [words]], etc
 
-Where the brackets indicate the overlapping letters between the first word in the row and the word in between the brackets
-first digit: amount of greens
-second digit: amount of yellows
-third digit: amount of reds
-
-such that it looks like:
-house 500 014 113
-pilot 014 500 014
-stare 113 014 500
-
-which is stored like
-house:500, 014, 113
-pilot:014, 500, 014
-stare:113, 014, 500
+lookup_table.txt format
+word:(other_word, code), (word3, code), etc
 '''
 
+entropy_table = {}
 lookup_table = {}
 
-def create_lookup_table():
+
+def create_lookup_and_entropy_table():
     #get all allowed words
     with open('allowed_words.txt', 'r') as file:
         possible_words = file.read().split('\n')
 
     global lookup_table
     lookup_table.clear()
+    global entropy_table
+    entropy_table.clear()
     for i in range(len(possible_words)):  # loop through all words
         word_new_row = possible_words[i]  # get word
         list_word_new_row = []  # get char from word
-        lookup_table[word_new_row] = []
+        lookup_table[word_new_row] = {}
+        entropy_table[word_new_row] = {}
+        for green in range(6):
+            for yellow in range(6-green):
+                entropy_table[word_new_row][str(green) + str(yellow) + str(5 - green - yellow)] = []
+
         for c in word_new_row:
             list_word_new_row.append([c, False])  # boolean indicates if character is already checked
         for j in range(i):  # for all already processed words
@@ -58,35 +53,53 @@ def create_lookup_table():
                             list_word_other_row[l][1] = True
                             yellow += 1
                             break  # break for-loop j
-            value = str(green) + str(yellow) + str(5 - green - yellow)
-            lookup_table[word_new_row].append(value)
-            lookup_table[word_other_row].append(value)
-        lookup_table[word_new_row].append('500')
 
-    with open('word_overlap.txt', 'w') as file:
-        line = ''
-        for x in lookup_table:
-            line += x + ':'
-            for i in range(len(lookup_table[x]) - 1):
-                line += lookup_table[x][i] + ', '
-            line += lookup_table[x][-1]
-        file.write(line)
+            #adding data to both tables
+            value = str(green) + str(yellow) + str(5 - green - yellow)
+            entropy_table[word_new_row][value].append(word_other_row)
+            entropy_table[word_other_row][value].append(word_new_row)
+            lookup_table[word_new_row][word_other_row] = value
+            lookup_table[word_other_row][word_new_row] = value
+
+        entropy_table[word_new_row]['500'].append(word_new_row)
+        lookup_table[word_new_row][word_new_row] = '500'
+
+    with open('word_entropy_table.txt', 'w') as file:
+        for word in entropy_table:
+            line = word + ':' #line = 'word:'
+            for code in entropy_table[word]:
+                line += '[' + code + ': ' #line looks like: 'word:(all previous rounds)[code: '
+                for w in entropy_table[word][code]:
+                    line += w + ', ' #line looks like: 'word:[code: trees, words,'
+                line = line[:-2] #delete last comma and space
+                line += '], ' #line looks like: 'word:[code: trees, words],'
+            line = line[:-2]  # delete last comma and space
+            file.write(line + '\n')
+
+    with open('word_lookup_table.txt', 'w') as file:
+        for word in lookup_table:
+            line = word + ':'  # line = 'word:'
+            for other_word in lookup_table[word]:
+                line += '(' + other_word + ', ' + lookup_table[word][other_word] + '), '
+            line = line[:-2]  # delete last comma and space
+            file.write(line + '\n')
+
+
+def get_entropy_table():
+    return entropy_table
+
 
 def get_lookup_table():
     return lookup_table
 
 
-def load_lookup_table():
-    global lookup_table
-    lookup_table.clear()
-    with open('word_overlap.txt', 'r') as file:
+def load_entropy_table():
+    global entropy_table
+    entropy_table.clear()
+    with open('word_entropy_table.txt', 'r') as file:
         lines = file.read().split('\n')
-        for l in lines:
-            split = l.split(':')
-            codes = split[1].split(', ')
-            numbers = [int(i) for i in codes]
-            lookup_table[split[0]] = numbers
+        #TODO
 
 
 if __name__ == '__main__':
-    create_lookup_table()
+    create_lookup_and_entropy_table()
