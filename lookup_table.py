@@ -6,7 +6,7 @@ import copy
 
 lookup_table = None
 
-
+#TODO multiple df, so that each is <100MB (github max file size)
 def create_lookup_table():
     #get all allowed words
     with open('allowed_words.txt', 'r') as file:
@@ -26,7 +26,7 @@ def create_lookup_table():
                 code = str(g) + str(y) + str(5 - g - y)
                 entropy[w][code] = 0
 
-    progress_bar = tqdm(total=len(possible_words), desc='Words done')
+    progress_bar = tqdm(total=len(possible_words), desc='Lookup table')
     for i in range(len(possible_words)):  # loop through all words
         word_new_row = possible_words[i]  # get word
         list_word_new_row = []  # get char from word
@@ -66,6 +66,7 @@ def create_lookup_table():
         entropy[word_new_row]['500'] = 1
         progress_bar.update(1)
     progress_bar.close()
+    progress_bar2 = tqdm(total=len(possible_words), desc='Entropy')
     for w in possible_words:
         e = 0
         for x in entropy[w].values():
@@ -74,7 +75,9 @@ def create_lookup_table():
                 e += px*math.log2(1/px)
         e = round(e, 2)
         lookup_table.loc[w]['entropy'] = e
+        progress_bar2.update(1)
     lookup_table.to_csv('word_lookup_table.txt')
+    progress_bar2.close()
 
 
 def get_lookup_table():
