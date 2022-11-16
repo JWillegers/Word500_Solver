@@ -1,105 +1,70 @@
-'''
-entropy_table.txt format
-word:[005: [words]], [014: [words]], etc
-
-lookup_table.txt format
-word:(other_word, code), (word3, code), etc
-'''
-
-entropy_table = {}
-lookup_table = {}
+import pandas as pd
+from tqdm import tqdm
+import copy
 
 
-def create_lookup_and_entropy_table():
+lookup_table = None
+
+
+def create_lookup_table():
     #get all allowed words
     with open('allowed_words.txt', 'r') as file:
         possible_words = file.read().split('\n')
-
     global lookup_table
-    lookup_table.clear()
-    global entropy_table
-    entropy_table.clear()
+    lookup_table = pd.DataFrame(index=possible_words, columns=possible_words)
+    char_lookup_table = {}
+    progress_bar = tqdm(total=len(possible_words), desc='Words done')
     for i in range(len(possible_words)):  # loop through all words
         word_new_row = possible_words[i]  # get word
         list_word_new_row = []  # get char from word
-        lookup_table[word_new_row] = {}
-        entropy_table[word_new_row] = {}
-        for green in range(6):
-            for yellow in range(6-green):
-                entropy_table[word_new_row][str(green) + str(yellow) + str(5 - green - yellow)] = []
-
-        for c in word_new_row:
-            list_word_new_row.append([c, False])  # boolean indicates if character is already checked
+        for c in range(len(word_new_row)):
+            list_word_new_row.append((word_new_row[c], c))  # c indicates position in word
+        char_lookup_table[word_new_row] = list_word_new_row
         for j in range(i):  # for all already processed words
             word_other_row = possible_words[j]  # get word
-            list_word_other_row = []  # get char from word
-            for c in word_other_row:
-                list_word_other_row.append([c, False])  # boolean indicates if character is already checked
-            # find how many letter overlap
+            list_word_other_row = copy.deepcopy(char_lookup_table[word_other_row])
+            copy_word_new_row = copy.deepcopy(list_word_new_row)
             green = 0
-            for k in range(len(word_new_row)):
-                if list_word_new_row[k][0] == list_word_other_row[k][0]:
-                    green += 1
-                    list_word_new_row[k][1] = True
-                    list_word_other_row[k][1] = True
-
-            # find how many yellows there are
             yellow = 0
-            for k in range(len(word_new_row)):
-                if not list_word_new_row[k][1]:
-                    for l in range(len(word_other_row)):
-                        if k != l and not list_word_other_row[l][1] and \
-                                list_word_new_row[k][0] == list_word_other_row[l][0]:
-                            list_word_other_row[l][1] = True
-                            yellow += 1
-                            break  # break for-loop j
-
+            while len(copy_word_new_row) > 0: #while still char needs to be checked
+                c1, pos1 = copy_word_new_row.pop(0) #get first char
+                #define a few variables
+                lowest_pos = 100
+                c3 = ''
+                for c2, pos2 in list_word_other_row: #for every char still in list_word_other_row
+                    if c1 == c2 and pos1 == pos2: #check for greens
+                        green += 1
+                        list_word_other_row.remove((c2, pos2))
+                        lowest_pos = 100 #reset value in case we id found a yellow
+                        break
+                    elif c1 == c2: #check for yellows
+                        lowest_pos = pos2
+                        c3 = c2
+                if lowest_pos != 100: #if yellows but no green found
+                    yellow += 1
+                    list_word_other_row.remove((c3, lowest_pos))
             #adding data to both tables
             value = str(green) + str(yellow) + str(5 - green - yellow)
-            entropy_table[word_new_row][value].append(word_other_row)
-            entropy_table[word_other_row][value].append(word_new_row)
-            lookup_table[word_new_row][word_other_row] = value
-            lookup_table[word_other_row][word_new_row] = value
+            lookup_table.loc[word_new_row][word_other_row] = value
+            lookup_table.loc[word_other_row][word_new_row] = value
+        lookup_table.loc[word_new_row][word_new_row] = '500'
+        progress_bar.update(1)
+    lookup_table.to_csv('word_lookup_table.txt')
+    progress_bar.close()
 
-        entropy_table[word_new_row]['500'].append(word_new_row)
-        lookup_table[word_new_row][word_new_row] = '500'
-
-    with open('word_entropy_table.txt', 'w') as file:
-        for word in entropy_table:
-            line = word + ':' #line = 'word:'
-            for code in entropy_table[word]:
-                line += '[' + code + ': ' #line looks like: 'word:(all previous rounds)[code: '
-                for w in entropy_table[word][code]:
-                    line += w + ', ' #line looks like: 'word:[code: trees, words,'
-                line = line[:-2] #delete last comma and space
-                line += '], ' #line looks like: 'word:[code: trees, words],'
-            line = line[:-2]  # delete last comma and space
-            file.write(line + '\n')
-
-    with open('word_lookup_table.txt', 'w') as file:
-        for word in lookup_table:
-            line = word + ':'  # line = 'word:'
-            for other_word in lookup_table[word]:
-                line += '(' + other_word + ', ' + lookup_table[word][other_word] + '), '
-            line = line[:-2]  # delete last comma and space
-            file.write(line + '\n')
-
-
-def get_entropy_table():
-    return entropy_table
 
 
 def get_lookup_table():
     return lookup_table
 
 
-def load_entropy_table():
-    global entropy_table
-    entropy_table.clear()
-    with open('word_entropy_table.txt', 'r') as file:
+def load_lookup_table():
+    global lookup_table
+    lookup_table.clear()
+    with open('word_lookup_table.txt', 'r') as file:
         lines = file.read().split('\n')
         #TODO
 
 
 if __name__ == '__main__':
-    create_lookup_and_entropy_table()
+    create_lookup_table()
