@@ -18,6 +18,9 @@ the player only gets to know how many letters are green, yellow and red.
   * Word frequency [TODO]
   * Entropy: E[information]=sum of all x (p(x) * information) [TODO]
 
+##The lookup_table_part folder
+Because github has a 100MB file limit, I provided a split lookup table in this folder.
+
 ##Sources
 * 3Blue1Brown video on wordle: https://www.youtube.com/watch?v=v68zYyaEmEA
     * Corresponding GitHub: https://github.com/3b1b/videos/tree/master/_2022/wordle
