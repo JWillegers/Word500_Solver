@@ -1,5 +1,5 @@
 '''
-OLD TUI METHONDS
+FILE TO BE DEPRECATED
 '''
 #Get 2 lists
 #One with all possible words
@@ -7,7 +7,7 @@ OLD TUI METHONDS
 
 
 def get_words(difficulty, testmode = False):
-    file = 'preperation/allowed_words.txt'
+    file = 'preparation/allowed_words.txt'
     if testmode:
         file = '../' + file
     with open(file, 'r') as file:

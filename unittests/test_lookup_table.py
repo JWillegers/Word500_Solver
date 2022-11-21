@@ -1,5 +1,5 @@
 import unittest
-from preperation import lookup_table
+from preparation import lookup_table
 
 
 class TestStringMethods(unittest.TestCase):
