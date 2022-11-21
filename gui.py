@@ -37,10 +37,10 @@ def home_screen():
     home_frame.pack()
 
     greeting = tk.Label(home_frame, text='Word500 solver by JWillegers', font=('Arial', int(height / 20)), fg=txt_color, bg=bg_color)
-    greeting.pack(pady=int(height/50))
+    greeting.grid(row=0, columnspan=1, pady=10)
 
     select = tk.Label(home_frame, text='Start by selecting a difficulty', font=('Arial', int(height / 40)), fg=txt_color, bg=bg_color)
-    select.pack(pady=int(height/50))
+    select.grid(row=1, columnspan=1, pady=5)
 
     button_easy = tk.Button(
         home_frame,
@@ -52,7 +52,7 @@ def home_screen():
         fg=input_txt_color,
         bg=input_bg_color
     )
-    button_easy.pack(pady=int(height/50))
+    button_easy.grid(row=3, column=1, pady=5)
 
     button_medium = tk.Button(
         home_frame,
@@ -64,7 +64,7 @@ def home_screen():
         fg=input_txt_color,
         bg=input_bg_color
     )
-    button_medium.pack(pady=int(height/50))
+    button_medium.grid(row=4, column=1, pady=5)
     button_hard = tk.Button(
         home_frame,
         text='Hard',
@@ -75,7 +75,12 @@ def home_screen():
         fg=input_txt_color,
         bg=input_bg_color
     )
-    button_hard.pack(pady=int(height/50))
+    button_hard.grid(row=5, column=1, pady=5)
+
+    home_frame.rowconfigure(0, weight=1)
+    home_frame.rowconfigure(2, weight=3)
+    home_frame.rowconfigure(6, weight=6)
+    home_frame.columnconfigure(1, weight=1)
 
 
 def easy():

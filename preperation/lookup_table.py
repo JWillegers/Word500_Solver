@@ -93,5 +93,5 @@ def load_lookup_table(split):
         lookup_table = pd.read_csv('word_lookup_table.txt', index_col=[0], dtype=str)
 
 if __name__ == '__main__':
-    #create_lookup_table()
+    create_lookup_table()
     split_lookup_table()
