@@ -1,16 +1,16 @@
 import tkinter as tk
-import prepare_game
 import solver
+from preparation import load_file
 
-#change these number for changing screen size
-#warning: some stuff might overlap if numbers are too small
+# change these number for changing screen size
+# warning: some stuff might overlap if numbers are too small
 width = 1600
 height = 900
 
-#global variables
-allowed_words = []
-words_still_possible = []
-words_entropy = []
+# global variables
+allowed_words = {}
+words_still_possible = {}
+lookup = None
 label_mistake = None
 left_list = None
 
@@ -19,8 +19,10 @@ txt_color = '#A27B5C'
 input_bg_color = '#2C3639'
 input_txt_color = '#DCD7C9'
 
+
 def run():
     global window
+    global lookup
     window = tk.Tk(className='Word500 solver by JWillegers')  # create window
     window.geometry(str(width) + 'x' + str(height))
     window.resizable(False, False)
@@ -28,7 +30,7 @@ def run():
     window.bind('<Return>', check_guess)
 
     home_screen()
-    window.mainloop() #show window (and interact with it)
+    window.mainloop()  # show window (and interact with it)
 
 
 def home_screen():
@@ -36,10 +38,12 @@ def home_screen():
     home_frame = tk.Frame(window, bg=bg_color)
     home_frame.pack()
 
-    greeting = tk.Label(home_frame, text='Word500 solver by JWillegers', font=('Arial', int(height / 20)), fg=txt_color, bg=bg_color)
+    greeting = tk.Label(home_frame, text='Word500 solver by JWillegers', font=('Arial', int(height / 20)), fg=txt_color,
+                        bg=bg_color)
     greeting.grid(row=0, columnspan=1, pady=10)
 
-    select = tk.Label(home_frame, text='Start by selecting a difficulty', font=('Arial', int(height / 40)), fg=txt_color, bg=bg_color)
+    select = tk.Label(home_frame, text='Start by selecting a difficulty', font=('Arial', int(height / 40)),
+                      fg=txt_color, bg=bg_color)
     select.grid(row=1, columnspan=1, pady=5)
 
     button_easy = tk.Button(
@@ -48,7 +52,7 @@ def home_screen():
         width=20,
         height=2,
         command=easy,
-        font=('Arial', int(height/50)),
+        font=('Arial', int(height / 50)),
         fg=input_txt_color,
         bg=input_bg_color
     )
@@ -95,22 +99,29 @@ def hard():
     start_game('hard')
 
 
+# load necessary .txt files
 def start_game(difficulty):
     global allowed_words
     global words_still_possible
-    allowed_words, words_still_possible = prepare_game.get_words(difficulty)
+    global lookup
+    lookup = load_file.load_lookup_table(False)  # TODO split button
+    words_still_possible = load_file.load_words(difficulty)
+    words_still_possible = dict(sorted(words_still_possible.items(), key=lambda item: item[1], reverse=True)) #sort by entropy decreasing
+    with open('preparation/allowed_words.txt', 'r') as file:
+        allowed_words = file.read().split('\n')
     build_game_screen()
 
+
 def build_game_screen():
-    #first remove all old widgets
+    # first remove all old widgets
     home_frame.destroy()
 
     global middle_frame
     global right_frame
     global left_frame
 
-    #making frames
-    #sticky makes background fill the whole frame
+    # making frames
+    # sticky makes background fill the whole frame
     left_frame = tk.Frame(window, bg='pink')
     left_frame.grid(row=0, column=0, sticky='nesw')
     middle_frame = tk.Frame(window, bg=bg_color)
@@ -118,8 +129,7 @@ def build_game_screen():
     right_frame = tk.Frame(window, bg='blue')
     right_frame.grid(row=0, column=2, sticky='nesw')
 
-
-    #configuring columns and rows such that they fill the whole window
+    # configuring columns and rows such that they fill the whole window
     window.columnconfigure(0, weight=2)
     window.columnconfigure(1, weight=2)
     window.columnconfigure(2, weight=2)
@@ -140,9 +150,7 @@ def build_game_screen():
         font=('Arial', int(height / 50))
     )
     left_title.pack(pady=5)
-
     create_middle_frame()
-    solver.get_recommendations()
     update_left_frame()
 
 
@@ -150,7 +158,6 @@ def create_middle_frame():
     global middle_frame
     global column_max
     column_max = 12
-
 
     middle_title = tk.Label(
         middle_frame,
@@ -164,7 +171,7 @@ def create_middle_frame():
     global entry_boxes
     entry_boxes = []
 
-    #creating input frames for letters and numbers
+    # creating input frames for letters and numbers
     for row in range(1, 9):
         entry_row = []
         for column in range(1, 10):
@@ -181,19 +188,21 @@ def create_middle_frame():
                 fg = 'black'
 
             if column != 6:
-                entry = tk.Entry(middle_frame, fg=fg, bg=bg, width=4, font=('Arial', int(height / 50)), justify=tk.CENTER)
+                entry = tk.Entry(middle_frame, fg=fg, bg=bg, width=4, font=('Arial', int(height / 50)),
+                                 justify=tk.CENTER)
                 entry.grid(row=row, column=column, padx=2, pady=5, ipady=10)
                 entry_row.append(entry)
         entry_boxes.append(entry_row)
 
-    #creating guess counter to keep track of how many guesses are done
+    # creating guess counter to keep track of how many guesses are done
     global guess_counter
     guess_counter = 0
 
-    #spacing
+    # spacing
     middle_frame.columnconfigure(0, weight=5)
     middle_frame.columnconfigure(6, weight=1)
     middle_frame.columnconfigure(column_max, weight=5)
+
 
 def update_left_frame():
     global left_list
@@ -202,39 +211,44 @@ def update_left_frame():
 
     word_list = ''
     max_words = 30
-    for i in range(min(len(words_entropy), max_words)):
-        word_list += words_entropy[i][0] + ' ' + str(words_entropy[i][1])
-        if i != min(len(words_entropy), max_words) - 1:
+    i = 0
+    for word, entropy in words_still_possible.items():
+        word_list += word + ': ' + str(entropy)
+        i += 1
+        if i == max_words:
+            break
+        else:
             word_list += '\n'
     left_list = tk.Label(left_frame, text=word_list, font=('Arial', int(height / 50)), bg=bg_color, fg=txt_color)
     left_list.pack(pady=20)
 
+
 def check_guess(event):
-    #getting global variables
+    # getting global variables
     global entry_boxes
     global column_max
     global label_mistake
     global words_still_possible
 
-    if 'middle_frame' in globals() and 'guess_counter' in globals(): #checking if we are not on main screen
+    if 'middle_frame' in globals() and 'guess_counter' in globals():  # checking if we are not on main screen
         global guess_counter
         mistake_found = False
-        box_counter = 0 #input box
-        msg = '' #error message
-        word = '' #guessed word
+        box_counter = 0  # input box
+        msg = ''  # error message
+        word = ''  # guessed word
         green = 0
         yellow = 0
         red = 0
-        if not label_mistake == None: #destroy old label_mistake
+        if not label_mistake == None:  # destroy old label_mistake
             label_mistake.destroy()
 
-        #cheking input
+        # cheking input
         for input in entry_boxes[guess_counter]:
-            if len(input.get()) != 1: #Check that every inputbox has exactly 1 character
+            if len(input.get()) != 1:  # Check that every inputbox has exactly 1 character
                 mistake_found = True
                 msg = 'Please enter only one character per field'
                 break
-            elif box_counter >= 5: #check if the last 3 inputboxes are numbers
+            elif box_counter >= 5:  # check if the last 3 inputboxes are numbers
                 try:
                     match box_counter:
                         case 5:
@@ -246,20 +260,21 @@ def check_guess(event):
                 except:
                     mistake_found = True
                     msg = 'Please put a number in the green, yellow, and red box'
-            else: #add letter to word
+            else:  # add letter to word
                 word += input.get()
             box_counter += 1
-        #check if guess is a valid word
+        # check if guess is a valid word
         if msg == '' and word.lower() not in allowed_words:
             mistake_found = True
             msg = 'Not a valid word'
-        #check that green + yellow + red = 5
+        # check that green + yellow + red = 5
         elif msg == '' and green + yellow + red != 5:
             mistake_found = True
             msg = 'Numbers in the green, yellow and red box should add up to 5'
-        #display messages or
+        # display messages or
         if mistake_found:
-            label_mistake = tk.Label(middle_frame, text=msg, bg=bg_color, fg=txt_color, font=('Arial', int(height / 60)))
+            label_mistake = tk.Label(middle_frame, text=msg, bg=bg_color, fg=txt_color,
+                                     font=('Arial', int(height / 60)))
             label_mistake.grid(row=9, columnspan=column_max + 1, pady=10)
         else:
             words_still_possible = solver.process_guess(word, green, yellow, red, words_still_possible)
@@ -268,4 +283,3 @@ def check_guess(event):
 
 
 run()
-

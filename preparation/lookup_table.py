@@ -78,10 +78,6 @@ def split_lookup_table():
     progress_bar.close()
 
 
-def get_lookup_table():
-    return lookup_table
-
-
 def load_lookup_table(split):
     global lookup_table
     if split:

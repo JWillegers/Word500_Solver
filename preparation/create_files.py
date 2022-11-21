@@ -82,14 +82,5 @@ def write_to_file(diff, pw):
             file.write(str(key) + ': ' + str(value) + '\n')
 
 
-def load_file(difficulty):
-    with open('words_' + difficulty + '.txt', 'r') as file:
-        lines = file.read().split('\n')
-    return_dict = {}
-    for item in lines:
-        split = item.split(': ')
-        return_dict[split[0]] = float(split[1])
-    return return_dict
-
 if __name__ == '__main__':
     run()
