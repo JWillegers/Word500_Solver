@@ -242,7 +242,7 @@ def check_guess(event):
         if not label_mistake == None:  # destroy old label_mistake
             label_mistake.destroy()
 
-        # cheking input
+        # checking input
         for input in entry_boxes[guess_counter]:
             if len(input.get()) != 1:  # Check that every inputbox has exactly 1 character
                 mistake_found = True
@@ -271,13 +271,14 @@ def check_guess(event):
         elif msg == '' and green + yellow + red != 5:
             mistake_found = True
             msg = 'Numbers in the green, yellow and red box should add up to 5'
-        # display messages or
+        # display messages or process guess
         if mistake_found:
             label_mistake = tk.Label(middle_frame, text=msg, bg=bg_color, fg=txt_color,
                                      font=('Arial', int(height / 60)))
             label_mistake.grid(row=9, columnspan=column_max + 1, pady=10)
         else:
-            words_still_possible = solver.process_guess(word, green, yellow, red, words_still_possible)
+            words_still_possible = solver.process_guess(word, green, yellow, red, lookup, words_still_possible)
+            words_still_possible = dict(sorted(words_still_possible.items(), key=lambda item: item[1], reverse=True))  # sort by entropy decreasing
             update_left_frame()
             guess_counter += 1
 

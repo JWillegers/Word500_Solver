@@ -78,7 +78,7 @@ def split_lookup_table():
     progress_bar.close()
 
 
-def load_lookup_table(split):
+def load_lookup_table(split, test_mode=False):
     global lookup_table
     if split:
         lookup_table = pd.read_csv('../lookup_table_part/part1.txt', index_col=[0], dtype=str)
@@ -86,7 +86,13 @@ def load_lookup_table(split):
             part = pd.read_csv('../lookup_table_part/part' + str(i) + '.txt', index_col=[0], dtype=str)
             pd.concat([lookup_table, part])
     else:
-        lookup_table = pd.read_csv('word_lookup_table.txt', index_col=[0], dtype=str)
+        file = ''
+        if test_mode:
+            file += '../preparation/'
+        file += 'word_lookup_table.txt'
+        lookup_table = pd.read_csv(file, index_col=[0], dtype=str)
+    return lookup_table
+
 
 if __name__ == '__main__':
     create_lookup_table()

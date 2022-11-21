@@ -51,7 +51,7 @@ def calculate_entropy(possible_words, lookup):
                 code = str(g) + str(y) + str(5 - g - y)
                 entropy[w][code] = 0
 
-    # loop through all words
+    # loop through all words and find the 'entropy buckets'
     loop_pb = tqdm(total=len(possible_words), desc='Loop through words')
     for i in range(len(possible_words)):
         word_i = possible_words[i]

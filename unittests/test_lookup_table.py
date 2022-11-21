@@ -85,5 +85,6 @@ class TestStringMethods(unittest.TestCase):
         word4 = [('b', 0), ('r', 1), ('a', 2), ('s', 3), ('s', 4)]
         self.assertEqual('113', lookup_table.calculate_value(word3, word4))
 
+
 if __name__ == '__main__':
     unittest.main()

@@ -16,7 +16,7 @@ the player only gets to know how many letters are green, yellow and red.
 * Build a GUI with tkinter
 * Solver using information theory video from 3B1B
   * Word frequency [TODO]
-  * Entropy: E[information]=sum of all x (p(x) * information) [TODO]
+  * Entropy: E[information]=sum of all x (p(x) * information)
 
 ##The lookup_table_part folder
 Because github has a 100MB file limit, I provided a split lookup table in this folder.
