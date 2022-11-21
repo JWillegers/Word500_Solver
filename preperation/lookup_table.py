@@ -1,4 +1,3 @@
-import math
 import pandas as pd
 from tqdm import tqdm
 import copy
@@ -14,12 +13,6 @@ def create_lookup_table():
     global lookup_table
     lookup_table = pd.DataFrame(index=possible_words, columns=possible_words)
     char_lookup_table = {}
-    for w in possible_words:
-        entropy[w] = {}
-        for g in range(6):
-            for y in range(6 - g):
-                code = str(g) + str(y) + str(5 - g - y)
-
     progress_bar = tqdm(total=len(possible_words), desc='Lookup table')
     for i in range(len(possible_words)):  # loop through all words
         word_new_row, list_word_new_row = get_charlist_from_word()
@@ -80,7 +73,7 @@ def split_lookup_table():
     progress_bar = tqdm(total=13, desc='Creating parts')
     for i in range(13):
         df_part = lookup_table.iloc[1000 * i:1000 * (i + 1)]
-        df_part.to_csv('lookup_table_part/part' + str(i) + '.txt')
+        df_part.to_csv('../lookup_table_part/part' + str(i) + '.txt')
         progress_bar.update(1)
     progress_bar.close()
 
@@ -92,9 +85,9 @@ def get_lookup_table():
 def load_lookup_table(split):
     global lookup_table
     if split:
-        lookup_table = pd.read_csv('lookup_table_part/part1.txt', index_col=[0], dtype=str)
+        lookup_table = pd.read_csv('../lookup_table_part/part1.txt', index_col=[0], dtype=str)
         for i in range(1, 13):
-            part = pd.read_csv('lookup_table_part/part' + str(i) + '.txt', index_col=[0], dtype=str)
+            part = pd.read_csv('../lookup_table_part/part' + str(i) + '.txt', index_col=[0], dtype=str)
             pd.concat([lookup_table, part])
     else:
         lookup_table = pd.read_csv('word_lookup_table.txt', index_col=[0], dtype=str)

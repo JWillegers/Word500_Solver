@@ -1,5 +1,6 @@
 import unittest
-import lookup_table
+from preperation import lookup_table
+
 
 class TestStringMethods(unittest.TestCase):
     def test_charlist_from_word(self):

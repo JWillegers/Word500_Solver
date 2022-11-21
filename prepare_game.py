@@ -1,5 +1,3 @@
-import lookup_table
-from tqdm import tqdm
 '''
 OLD TUI METHONDS
 '''
@@ -9,7 +7,7 @@ OLD TUI METHONDS
 
 
 def get_words(difficulty, testmode = False):
-    file = 'allowed_words.txt'
+    file = 'preperation/allowed_words.txt'
     if testmode:
         file = '../' + file
     with open(file, 'r') as file:
