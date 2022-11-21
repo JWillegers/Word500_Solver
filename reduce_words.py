@@ -1,3 +1,8 @@
+'''
+FILE WILL BE DEPRECATED IN THE FUTURE
+'''
+
+
 def process_guess(guess: str, possible_words):
     #split input
     guess_data = guess.split(' ')

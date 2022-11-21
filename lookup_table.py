@@ -12,18 +12,13 @@ def create_lookup_table():
     with open('allowed_words.txt', 'r') as file:
         possible_words = file.read().split('\n')
     global lookup_table
-    col = copy.deepcopy(possible_words)
-    col.append('entropy')
-    lookup_table = pd.DataFrame(index=possible_words, columns=col)
+    lookup_table = pd.DataFrame(index=possible_words, columns=possible_words)
     char_lookup_table = {}
-    #entropy
-    entropy = {}
     for w in possible_words:
         entropy[w] = {}
         for g in range(6):
             for y in range(6 - g):
                 code = str(g) + str(y) + str(5 - g - y)
-                entropy[w][code] = 0
 
     progress_bar = tqdm(total=len(possible_words), desc='Lookup table')
     for i in range(len(possible_words)):  # loop through all words
@@ -33,26 +28,12 @@ def create_lookup_table():
             word_other_row = possible_words[j]  # get word
             list_word_other_row = copy.deepcopy(char_lookup_table[word_other_row])
             value = calculate_value(copy.deepcopy(list_word_new_row), list_word_other_row)
-            entropy[word_new_row][value] += 1
-            entropy[word_other_row][value] += 1
             lookup_table.loc[word_new_row][word_other_row] = value
             lookup_table.loc[word_other_row][word_new_row] = value
         lookup_table.loc[word_new_row][word_new_row] = '500'
-        entropy[word_new_row]['500'] = 1
         progress_bar.update(1)
     progress_bar.close()
-    progress_bar2 = tqdm(total=len(possible_words), desc='Entropy')
-    for w in possible_words:
-        e = 0
-        for x in entropy[w].values():
-            px = x/len(possible_words)
-            if px > 0:
-                e += px*math.log2(1/px)
-        e = round(e, 2)
-        lookup_table.loc[w]['entropy'] = e
-        progress_bar2.update(1)
     lookup_table.to_csv('word_lookup_table.txt')
-    progress_bar2.close()
 
 
 #input: word like 'house'
