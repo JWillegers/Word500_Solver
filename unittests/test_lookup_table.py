@@ -67,6 +67,10 @@ class TestStringMethods(unittest.TestCase):
         word4 = [('s', 0), ('a', 1), ('c', 2), ('k', 3), ('s', 4)]
         self.assertEqual('104', lookup_table.calculate_value(word3, word4))
 
+        word5 = [('t', 0), ('h', 1), ('e', 2), ('r', 3), ('e', 4)]
+        word6 = [('l', 0), ('o', 1), ('o', 2), ('s', 3), ('e', 4)]
+        self.assertEqual('104', lookup_table.calculate_value(word5, word6))
+
     def test_double_yellows(self):
         word1 = [('p', 0), ('e', 1), ('r', 2), ('e', 3), ('z', 4)]
         word2 = [('s', 0), ('k', 1), ('e', 2), ('l', 3), ('e', 4)]

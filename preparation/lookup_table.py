@@ -55,7 +55,7 @@ def calculate_value(copy_word_new_row, list_word_other_row):
                 list_word_other_row.remove((c2, pos2))
                 lowest_pos = 100  # reset value in case we id found a yellow
                 break
-            elif c1 == c2:  # check for yellows
+            elif c1 == c2 and (c2, pos2) not in copy_word_new_row:  # check for yellows
                 lowest_pos = pos2
                 c3 = c2
         if lowest_pos != 100:  # if yellows but no green found
