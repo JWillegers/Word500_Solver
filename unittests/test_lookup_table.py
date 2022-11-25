@@ -89,6 +89,9 @@ class TestStringMethods(unittest.TestCase):
         word4 = [('b', 0), ('r', 1), ('a', 2), ('s', 3), ('s', 4)]
         self.assertEqual('113', lookup_table.calculate_value(word3, word4))
 
+    def test_load_lookup_table(self):
+        self.assertEqual(len(lookup_table.load_lookup_table(False, True).index), len(lookup_table.load_lookup_table(True, True).index))
+
 
 if __name__ == '__main__':
     unittest.main()

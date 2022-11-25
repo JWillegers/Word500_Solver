@@ -15,7 +15,7 @@ def create_lookup_table():
     char_lookup_table = {}
     progress_bar = tqdm(total=len(possible_words), desc='Lookup table')
     for i in range(len(possible_words)):  # loop through all words
-        word_new_row, list_word_new_row = get_charlist_from_word()
+        word_new_row, list_word_new_row = get_charlist_from_word(possible_words, i)
         char_lookup_table[word_new_row] = list_word_new_row
         for j in range(i):  # for all already processed words
             word_other_row = possible_words[j]  # get word
@@ -53,9 +53,9 @@ def calculate_value(copy_word_new_row, list_word_other_row):
             if c1 == c2 and pos1 == pos2:  # check for greens
                 green += 1
                 list_word_other_row.remove((c2, pos2))
-                lowest_pos = 100  # reset value in case we id found a yellow
+                lowest_pos = 100  # reset value in case we did find a yellow
                 break
-            elif c1 == c2 and (c2, pos2) not in copy_word_new_row:  # check for yellows
+            elif c1 == c2 and (c2, pos2) not in copy_word_new_row:  # check for yellows and making sure there is not a green later on
                 lowest_pos = pos2
                 c3 = c2
         if lowest_pos != 100:  # if yellows but no green found
@@ -81,10 +81,18 @@ def split_lookup_table():
 def load_lookup_table(split, test_mode=False):
     global lookup_table
     if split:
-        lookup_table = pd.read_csv('../lookup_table_part/part1.txt', index_col=[0], dtype=str)
+        file = ''
+        if test_mode:
+            file += '../'
+        file += 'lookup_table_part/part1.txt'
+        lookup_table = pd.read_csv(file, index_col=[0], dtype=str)
         for i in range(1, 13):
-            part = pd.read_csv('../lookup_table_part/part' + str(i) + '.txt', index_col=[0], dtype=str)
-            pd.concat([lookup_table, part])
+            file = ''
+            if test_mode:
+                file += '../'
+            file += 'lookup_table_part/part' + str(i) + '.txt'
+            part = pd.read_csv(file, index_col=[0], dtype=str)
+            lookup_table = pd.concat([lookup_table, part])
     else:
         file = ''
         if test_mode:

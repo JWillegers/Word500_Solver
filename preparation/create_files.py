@@ -7,8 +7,7 @@ import math
 def run():
     with open('allowed_words.txt', 'r') as file:
         possible_words = file.read().split('\n')
-    lookup_table.load_lookup_table(False)
-    lt = lookup_table.get_lookup_table()
+    lt = lookup_table.load_lookup_table(False)
 
     pw_hard_dict = calculate_entropy(possible_words,  lt)
     write_to_file('hard', pw_hard_dict)

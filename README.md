@@ -1,10 +1,6 @@
 #Word500
 This is my attempt at creating a solver for [word500](https://www.word500.com/#), a wordle inspired game.
 
-#IMPORTANT
-Hard mode is broken in this version. If you wish to use hard mode, running preparation/lookup_table.py is recommended, which can take a few hours.
-
-
 ##The game
 In 8 guesses or fewer, the player needs to find a 5-letter word. 
 But the feedback on a guessed word is a bit different from wordle. 
