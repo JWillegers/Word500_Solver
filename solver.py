@@ -5,10 +5,8 @@ def process_guess(guess, green, yellow, red, lookup, words_still_possible):
     value = str(green) + str(yellow) + str(red)
     entropy = {}
     # filter out old words and fill the 'entropy buckets'
-    print('========== ' + guess + ' ==========')
     for word1 in words_still_possible.keys():
         if lookup.loc[guess][word1] == value:
-            print(word1)
             #setup entropy dict
             entropy[word1] = {}
             for g in range(6):

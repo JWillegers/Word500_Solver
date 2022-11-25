@@ -277,7 +277,7 @@ def check_guess(event):
                                      font=('Arial', int(height / 60)))
             label_mistake.grid(row=9, columnspan=column_max + 1, pady=10)
         else:
-            words_still_possible = solver.process_guess(word, green, yellow, red, lookup, words_still_possible)
+            words_still_possible = solver.process_guess(word.lower(), green, yellow, red, lookup, words_still_possible)
             words_still_possible = dict(sorted(words_still_possible.items(), key=lambda item: item[1], reverse=True))  # sort by entropy decreasing
             update_left_frame()
             guess_counter += 1
