@@ -281,6 +281,25 @@ def check_guess(event):
             words_still_possible = dict(sorted(words_still_possible.items(), key=lambda item: item[1], reverse=True))  # sort by entropy decreasing
             update_left_frame()
             guess_counter += 1
+            msg = ''
+            if green == 5:
+                msg = 'You won!'
+            elif guess_counter == 8:
+                msg = 'You lost'
+            if msg != '':
+                label_end_game = tk.Label(middle_frame, text=msg, bg=bg_color, fg=txt_color, font=('Arial', int(height / 40)))
+                label_end_game.grid(row=9, columnspan=column_max + 1, pady=10)
+                button_end_game = tk.Button(middle_frame, text='Home', bg=input_bg_color, fg=txt_color, font=('Arial', int(height / 40)), command=home)
+                button_end_game.grid(row=10, columnspan=column_max + 1, pady=10, ipadx=10, ipady=5)
+
+def home():
+    global middle_frame
+    global right_frame
+    global left_frame
+    middle_frame.destroy()
+    right_frame.destroy()
+    left_frame.destroy()
+    home_screen()
 
 
 run()

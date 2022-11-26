@@ -76,7 +76,7 @@ def load_lookup_table(folder=False):
     file = ''
     if folder:
         file += '../'
-    file += 'lookup_table_part/part1.txt'
+    file += 'lookup_table_part/part0.txt'
     lookup_table = pd.read_csv(file, index_col=[0], dtype=str)
     for i in range(1, 13):
         file = ''
