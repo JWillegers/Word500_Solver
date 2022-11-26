@@ -1,13 +1,13 @@
 from copy import deepcopy
 from tqdm import tqdm
-import lookup_table
+from preparation import lookup_table
 import math
 
 
 def run():
     with open('allowed_words.txt', 'r') as file:
         possible_words = file.read().split('\n')
-    lt = lookup_table.load_lookup_table(False)
+    lt = lookup_table.load_lookup_table(True)
 
     pw_hard_dict = calculate_entropy(possible_words,  lt)
     write_to_file('hard', pw_hard_dict)
@@ -79,6 +79,17 @@ def write_to_file(diff, pw):
     with open('words_' + diff + '.txt', 'w') as file:
         for key, value in pw.items():
             file.write(str(key) + ': ' + str(value) + '\n')
+
+
+def load_words(difficulty):
+    with open('preparation/words_' + difficulty + '.txt', 'r') as file:
+        lines = file.read().split('\n')
+    return_dict = {}
+    for item in lines:
+        if ':' in item:
+            split = item.split(': ')
+            return_dict[split[0]] = float(split[1])
+    return return_dict
 
 
 if __name__ == '__main__':

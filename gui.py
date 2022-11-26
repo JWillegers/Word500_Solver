@@ -1,6 +1,7 @@
 import tkinter as tk
 import solver
-from preparation import load_file
+from preparation import first_guess
+from preparation import lookup_table
 
 # change these number for changing screen size
 # warning: some stuff might overlap if numbers are too small
@@ -29,6 +30,7 @@ def run():
     window.configure(bg=bg_color)
     window.bind('<Return>', check_guess)
 
+    lookup = lookup_table.load_lookup_table(False)
     home_screen()
     window.mainloop()  # show window (and interact with it)
 
@@ -103,9 +105,7 @@ def hard():
 def start_game(difficulty):
     global allowed_words
     global words_still_possible
-    global lookup
-    lookup = load_file.load_lookup_table(False)  # TODO split button
-    words_still_possible = load_file.load_words(difficulty)
+    words_still_possible = first_guess.load_words(difficulty)
     words_still_possible = dict(sorted(words_still_possible.items(), key=lambda item: item[1], reverse=True)) #sort by entropy decreasing
     with open('preparation/allowed_words.txt', 'r') as file:
         allowed_words = file.read().split('\n')

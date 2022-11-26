@@ -90,7 +90,7 @@ class TestStringMethods(unittest.TestCase):
         self.assertEqual('113', lookup_table.calculate_value(word3, word4))
 
     def test_load_lookup_table(self):
-        self.assertEqual(len(lookup_table.load_lookup_table(False, True).index), len(lookup_table.load_lookup_table(True, True).index))
+        self.assertEqual(12953, len(lookup_table.load_lookup_table(True).index))
 
 
 if __name__ == '__main__':

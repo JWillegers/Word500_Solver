@@ -3,14 +3,10 @@ from tqdm import tqdm
 import copy
 
 
-lookup_table = None
-
-
 def create_lookup_table():
     #get all allowed words
     with open('allowed_words.txt', 'r') as file:
         possible_words = file.read().split('\n')
-    global lookup_table
     lookup_table = pd.DataFrame(index=possible_words, columns=possible_words)
     char_lookup_table = {}
     progress_bar = tqdm(total=len(possible_words), desc='Lookup table')
@@ -26,7 +22,7 @@ def create_lookup_table():
         lookup_table.loc[word_new_row][word_new_row] = '500'
         progress_bar.update(1)
     progress_bar.close()
-    lookup_table.to_csv('word_lookup_table.txt')
+    split_lookup_table(lookup_table)
 
 
 #input: word like 'house'
@@ -66,10 +62,7 @@ def calculate_value(copy_word_new_row, list_word_other_row):
 
 
 #Because github has a file limit of 100MB, I split up the files to be accessable if someone runs my files from github
-def split_lookup_table():
-    global lookup_table
-    print('loading lookup table')
-    load_lookup_table(False)
+def split_lookup_table(lookup_table):
     progress_bar = tqdm(total=13, desc='Creating parts')
     for i in range(13):
         df_part = lookup_table.iloc[1000 * i:1000 * (i + 1)]
@@ -78,27 +71,20 @@ def split_lookup_table():
     progress_bar.close()
 
 
-def load_lookup_table(split, test_mode=False):
-    global lookup_table
-    if split:
+# ONLY USE THIS ONE FOR FUNCTIONS WHICH ARE IN /PREPARATION OR /UNITTESTS
+def load_lookup_table(folder=False):
+    file = ''
+    if folder:
+        file += '../'
+    file += 'lookup_table_part/part1.txt'
+    lookup_table = pd.read_csv(file, index_col=[0], dtype=str)
+    for i in range(1, 13):
         file = ''
-        if test_mode:
+        if folder:
             file += '../'
-        file += 'lookup_table_part/part1.txt'
-        lookup_table = pd.read_csv(file, index_col=[0], dtype=str)
-        for i in range(1, 13):
-            file = ''
-            if test_mode:
-                file += '../'
-            file += 'lookup_table_part/part' + str(i) + '.txt'
-            part = pd.read_csv(file, index_col=[0], dtype=str)
-            lookup_table = pd.concat([lookup_table, part])
-    else:
-        file = ''
-        if test_mode:
-            file += '../preparation/'
-        file += 'word_lookup_table.txt'
-        lookup_table = pd.read_csv(file, index_col=[0], dtype=str)
+        file += 'lookup_table_part/part' + str(i) + '.txt'
+        part = pd.read_csv(file, index_col=[0], dtype=str)
+        lookup_table = pd.concat([lookup_table, part])
     return lookup_table
 
 
