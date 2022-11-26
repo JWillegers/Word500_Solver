@@ -24,7 +24,7 @@ input_txt_color = '#DCD7C9'
 def run():
     global window
     global lookup
-    window = tk.Tk(className='Word500 solver by JWillegers')  # create window
+    window = tk.Tk(className='Word500 solver by Jonathan Willegers')  # create window
     window.geometry(str(width) + 'x' + str(height))
     window.resizable(False, False)
     window.configure(bg=bg_color)
@@ -40,13 +40,23 @@ def home_screen():
     home_frame = tk.Frame(window, bg=bg_color)
     home_frame.pack()
 
-    greeting = tk.Label(home_frame, text='Word500 solver by JWillegers', font=('Arial', int(height / 20)), fg=txt_color,
-                        bg=bg_color)
-    greeting.grid(row=0, columnspan=1, pady=10)
+    label_empty1 = tk.Label(home_frame, text=' ', bg=bg_color, fg=bg_color)
+    label_empty1.grid(row=0, columnspan=5, pady=20)
 
-    select = tk.Label(home_frame, text='Start by selecting a difficulty', font=('Arial', int(height / 40)),
-                      fg=txt_color, bg=bg_color)
-    select.grid(row=1, columnspan=1, pady=5)
+    greeting = tk.Label(home_frame, text='Word500 solver', font=('Arial', int(height / 15)),
+                        fg=txt_color, bg=bg_color, anchor='center')
+    greeting.grid(row=1, columnspan=5, pady=20)
+
+    credit = tk.Label(home_frame, text='by Jonathan Willegers', font=('Arial', int(height / 40)),
+                      fg=txt_color, bg=bg_color, anchor='center')
+    credit.grid(row=2, columnspan=5)
+
+    label_empty2 = tk.Label(home_frame, text=' ', bg=bg_color, fg=bg_color)
+    label_empty2.grid(row=3, columnspan=5, pady=20)
+
+    select = tk.Label(home_frame, text='Start by selecting a difficulty', font=('Arial', int(height / 25)),
+                      fg=txt_color, bg=bg_color, anchor='center')
+    select.grid(row=4, columnspan=5, pady=15)
 
     button_easy = tk.Button(
         home_frame,
@@ -58,7 +68,15 @@ def home_screen():
         fg=input_txt_color,
         bg=input_bg_color
     )
-    button_easy.grid(row=3, column=1, pady=5)
+    button_easy.grid(row=5, column=2, pady=5)
+    label_easy = tk.Label(
+        home_frame,
+        text='- No JQXZ\n- No repeat letters',
+        font=('Arial', int(height / 60)),
+        bg=bg_color,
+        fg=txt_color,
+    )
+    label_easy.grid(row=5, column=3, padx=5)
 
     button_medium = tk.Button(
         home_frame,
@@ -70,7 +88,17 @@ def home_screen():
         fg=input_txt_color,
         bg=input_bg_color
     )
-    button_medium.grid(row=4, column=1, pady=5)
+    button_medium.grid(row=6, column=2, pady=5)
+    label_medium = tk.Label(
+        home_frame,
+        text='- No repeat letters',
+        font=('Arial', int(height / 60)),
+        bg=bg_color,
+        fg=txt_color,
+    )
+    label_medium.grid(row=6, column=3, padx=5)
+
+
     button_hard = tk.Button(
         home_frame,
         text='Hard',
@@ -81,12 +109,12 @@ def home_screen():
         fg=input_txt_color,
         bg=input_bg_color
     )
-    button_hard.grid(row=5, column=1, pady=5)
+    button_hard.grid(row=7, column=2, pady=5)
 
-    home_frame.rowconfigure(0, weight=1)
-    home_frame.rowconfigure(2, weight=3)
-    home_frame.rowconfigure(6, weight=6)
+    home_frame.rowconfigure(8, weight=1)
+    home_frame.columnconfigure(0, weight=1)
     home_frame.columnconfigure(1, weight=1)
+    home_frame.columnconfigure(4, weight=1)
 
 
 def easy():
@@ -281,6 +309,8 @@ def check_guess(event):
             words_still_possible = dict(sorted(words_still_possible.items(), key=lambda item: item[1], reverse=True))  # sort by entropy decreasing
             update_left_frame()
             guess_counter += 1
+
+            # check if game is over
             msg = ''
             if green == 5:
                 msg = 'You won!'
@@ -292,6 +322,8 @@ def check_guess(event):
                 button_end_game = tk.Button(middle_frame, text='Home', bg=input_bg_color, fg=txt_color, font=('Arial', int(height / 40)), command=home)
                 button_end_game.grid(row=10, columnspan=column_max + 1, pady=10, ipadx=10, ipady=5)
 
+
+# destroy game screen and build home screen
 def home():
     global middle_frame
     global right_frame
