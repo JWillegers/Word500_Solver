@@ -1,5 +1,7 @@
+import threading
 import tkinter as tk
 import solver
+import time
 from preparation import first_guess
 from preparation import lookup_table
 
@@ -14,6 +16,7 @@ words_still_possible = {}
 lookup = None
 label_mistake = None
 left_list = None
+thread_is_running = False
 
 bg_color = '#121212'
 txt_color = '#A27B5C'
@@ -23,22 +26,26 @@ input_txt_color = '#DCD7C9'
 
 def run():
     global window
-    global lookup
     window = tk.Tk(className='Word500 solver by Jonathan Willegers')  # create window
     window.geometry(str(width) + 'x' + str(height))
     window.resizable(False, False)
     window.configure(bg=bg_color)
     window.bind('<Return>', check_guess)
 
-    lookup = lookup_table.load_lookup_table(False)
-    home_screen()
+    window.after(200, home_screen)
     window.mainloop()  # show window (and interact with it)
 
 
 def home_screen():
     global home_frame
+    global thread_is_running
     home_frame = tk.Frame(window, bg=bg_color)
     home_frame.pack()
+
+    home_frame.rowconfigure(8, weight=1)
+    home_frame.columnconfigure(0, weight=1)
+    home_frame.columnconfigure(1, weight=1)
+    home_frame.columnconfigure(4, weight=1)
 
     label_empty1 = tk.Label(home_frame, text=' ', bg=bg_color, fg=bg_color)
     label_empty1.grid(row=0, columnspan=5, pady=20)
@@ -53,6 +60,30 @@ def home_screen():
 
     label_empty2 = tk.Label(home_frame, text=' ', bg=bg_color, fg=bg_color)
     label_empty2.grid(row=3, columnspan=5, pady=20)
+
+    if lookup is None:
+        thread = threading.Thread(target=thread_lookup, daemon=True)
+        thread_is_running = True
+        max_dots = 6
+        dot_counter = 1
+        thread.start()
+        loading = tk.Label()
+        while thread_is_running:
+            loading.destroy()
+            dots = ''
+            for d in range(dot_counter):
+                dots += '.'
+            for space in range(max_dots - len(dots)):
+                dots += ' '
+            loading = tk.Label(home_frame, text='Loading files' + dots, font=('Arial', int(height / 25)),
+                               fg=txt_color, bg=bg_color, anchor='center')
+            loading.grid(row=4, columnspan=5, pady=15)
+            dot_counter += 1
+            dot_counter = dot_counter % max_dots
+            window.update()
+            time.sleep(0.25)
+        loading.destroy()
+
 
     select = tk.Label(home_frame, text='Start by selecting a difficulty', font=('Arial', int(height / 25)),
                       fg=txt_color, bg=bg_color, anchor='center')
@@ -110,11 +141,14 @@ def home_screen():
         bg=input_bg_color
     )
     button_hard.grid(row=7, column=2, pady=5)
+    window.update()
 
-    home_frame.rowconfigure(8, weight=1)
-    home_frame.columnconfigure(0, weight=1)
-    home_frame.columnconfigure(1, weight=1)
-    home_frame.columnconfigure(4, weight=1)
+
+def thread_lookup():
+    global lookup
+    global thread_is_running
+    lookup = lookup_table.load_lookup_table(False)
+    thread_is_running = False
 
 
 def easy():
