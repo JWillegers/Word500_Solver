@@ -1,3 +1,4 @@
+import math
 import threading
 import tkinter as tk
 import solver
@@ -16,7 +17,9 @@ words_still_possible = {}
 lookup = None
 label_mistake = None
 left_list = None
+right_frame_label = None
 thread_is_running = False
+right_frame_text = ''
 
 bg_color = '#121212'
 txt_color = '#A27B5C'
@@ -75,7 +78,8 @@ def home_screen():
                 dots += '.'
             for space in range(max_dots - len(dots)):
                 dots += ' '
-            loading = tk.Label(home_frame, text='Loading files' + dots, font=('Arial', int(height / 25)),
+            spaces = ' '*max_dots  # spaces to center text
+            loading = tk.Label(home_frame, text=spaces + 'Loading files' + dots, font=('Arial', int(height / 25)),
                                fg=txt_color, bg=bg_color, anchor='center')
             loading.grid(row=4, columnspan=5, pady=15)
             dot_counter += 1
@@ -83,7 +87,6 @@ def home_screen():
             window.update()
             time.sleep(0.25)
         loading.destroy()
-
 
     select = tk.Label(home_frame, text='Start by selecting a difficulty', font=('Arial', int(height / 25)),
                       fg=txt_color, bg=bg_color, anchor='center')
@@ -181,6 +184,7 @@ def build_game_screen():
     global middle_frame
     global right_frame
     global left_frame
+    global right_frame_text
 
     # making frames
     # sticky makes background fill the whole frame
@@ -199,9 +203,10 @@ def build_game_screen():
 
     right_title = tk.Label(
         right_frame,
-        text='Other',
+        text='Uncertainty after guesses',
         bg=bg_color,
-        fg=txt_color
+        fg=txt_color,
+        font=('Arial', int(height / 40))
     )
     right_title.pack(pady=5)
     left_title = tk.Label(
@@ -209,11 +214,12 @@ def build_game_screen():
         text='Guess suggestions',
         bg=bg_color,
         fg=txt_color,
-        font=('Arial', int(height / 50))
+        font=('Arial', int(height / 40))
     )
     left_title.pack(pady=5)
     create_middle_frame()
     update_left_frame()
+    update_right_frame('')
 
 
 def create_middle_frame():
@@ -226,7 +232,7 @@ def create_middle_frame():
         text='Word500',
         bg=bg_color,
         fg=txt_color,
-        font=('Arial', int(height / 50)),
+        font=('Arial', int(height / 40)),
     )
     middle_title.grid(row=0, columnspan=column_max + 1, pady=25)
 
@@ -282,7 +288,22 @@ def update_left_frame():
         else:
             word_list += '\n'
     left_list = tk.Label(left_frame, text=word_list, font=('Arial', int(height / 50)), bg=bg_color, fg=txt_color)
-    left_list.pack(pady=20)
+    left_list.pack()
+
+
+def update_right_frame(guess):
+    global right_frame_text
+    global words_still_possible
+    global right_frame_label
+    global right_frame
+    if right_frame_label is not None:
+        right_frame_label.destroy()
+    if right_frame_text == '':
+        right_frame_text = 'No guesses: ' + str(round(math.log2(len(words_still_possible)), 2)) + '\n\n'
+    else:
+        right_frame_text += guess + ': ' + str(round(math.log2(len(words_still_possible)), 2)) + '\n\n'
+    right_frame_label = tk.Label(right_frame, text=right_frame_text, font=('Arial', int(height / 50)), bg=bg_color, fg=txt_color)
+    right_frame_label.pack()
 
 
 def check_guess(event):
@@ -339,9 +360,34 @@ def check_guess(event):
                                      font=('Arial', int(height / 60)))
             label_mistake.grid(row=9, columnspan=column_max + 1, pady=10)
         else:
-            words_still_possible = solver.process_guess(word.lower(), green, yellow, red, lookup, words_still_possible)
+            if len(words_still_possible) > 4000:  # if words still possible is large (number may be changed)
+                global thread_is_running
+                thread = threading.Thread(target=thread_process_guess, args=(word, green, yellow, red), daemon=True)
+                thread_is_running = True
+                thread.start()
+                max_dots = 6
+                count_dots = 0
+                processing = tk.Label()
+                while thread_is_running:
+                    processing.destroy()
+                    dots = ''
+                    for d in range(count_dots):
+                        dots += '.'
+                    for space in range(max_dots - count_dots):
+                        dots += ' '
+                    processing = tk.Label(middle_frame, text='Processing guess' + dots, bg=bg_color, fg=txt_color,
+                                          font=('Arial', int(height/50)))
+                    processing.grid(row=9, columnspan=column_max + 1, pady=20)
+                    count_dots = (count_dots + 1) % max_dots
+                    time.sleep(0.25)
+                    window.update()
+                processing.destroy()
+
+            else:
+                words_still_possible = solver.process_guess(word.lower(), green, yellow, red, lookup, words_still_possible)
             words_still_possible = dict(sorted(words_still_possible.items(), key=lambda item: item[1], reverse=True))  # sort by entropy decreasing
             update_left_frame()
+            update_right_frame(word.lower())
             guess_counter += 1
 
             # check if game is over
@@ -357,14 +403,33 @@ def check_guess(event):
                 button_end_game.grid(row=10, columnspan=column_max + 1, pady=10, ipadx=10, ipady=5)
 
 
-# destroy game screen and build home screen
+def thread_process_guess(word, green, yellow, red):
+    global words_still_possible
+    global thread_is_running
+    words_still_possible = solver.process_guess(word.lower(), green, yellow, red, lookup, words_still_possible)
+    thread_is_running = False
+
+
 def home():
+    # destroy game screen
     global middle_frame
     global right_frame
     global left_frame
     middle_frame.destroy()
     right_frame.destroy()
     left_frame.destroy()
+
+    # reset some global variables
+    global right_frame_text
+    global words_still_possible
+    global left_list
+    global right_frame_label
+    right_frame_text = ''
+    words_still_possible = {}
+    left_list = None
+    right_frame_label = None
+
+    # build homescreen
     home_screen()
 
 
