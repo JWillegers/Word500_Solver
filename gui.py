@@ -188,16 +188,16 @@ def build_game_screen():
 
     # making frames
     # sticky makes background fill the whole frame
-    left_frame = tk.Frame(window, bg='pink')
+    left_frame = tk.Frame(window, bg=bg_color)
     left_frame.grid(row=0, column=0, sticky='nesw')
     middle_frame = tk.Frame(window, bg=bg_color)
     middle_frame.grid(row=0, column=1, sticky='nesw')
-    right_frame = tk.Frame(window, bg='blue')
+    right_frame = tk.Frame(window, bg=bg_color)
     right_frame.grid(row=0, column=2, sticky='nesw')
 
     # configuring columns and rows such that they fill the whole window
-    window.columnconfigure(0, weight=2)
-    window.columnconfigure(1, weight=2)
+    window.columnconfigure(0, weight=3)
+    window.columnconfigure(1, weight=3)
     window.columnconfigure(2, weight=2)
     window.rowconfigure(0, weight=1)
 
@@ -238,6 +238,8 @@ def create_middle_frame():
 
     global entry_boxes
     entry_boxes = []
+    vcmd_char = (window.register(validate_letter), '%P')
+    vcmd_digit = (window.register(validate_digit), '%P')
 
     # creating input frames for letters and numbers
     for row in range(1, 9):
@@ -254,10 +256,14 @@ def create_middle_frame():
             elif column == 9:
                 bg = 'red'
                 fg = 'black'
+            if column < 7:
+                v = vcmd_char
+            else:
+                v = vcmd_digit
 
             if column != 6:
                 entry = tk.Entry(middle_frame, fg=fg, bg=bg, width=4, font=('Arial', int(height / 50)),
-                                 justify=tk.CENTER)
+                                 justify=tk.CENTER, validate='key', validatecommand=v)
                 entry.grid(row=row, column=column, padx=2, pady=5, ipady=10)
                 entry_row.append(entry)
         entry_boxes.append(entry_row)
@@ -266,10 +272,36 @@ def create_middle_frame():
     global guess_counter
     guess_counter = 0
 
+    # adding invisible label with the longest message to keep spacing consistent
+    msg = 'Numbers in the green, yellow and red box should add up to 5'
+    spaces = tk.Label(middle_frame, text=msg, bg=bg_color, fg=bg_color,
+                      font=('Arial', int(height / 50)), justify=tk.CENTER)
+    spaces.grid(row=10, columnspan=column_max + 1)
+
     # spacing
     middle_frame.columnconfigure(0, weight=5)
     middle_frame.columnconfigure(6, weight=1)
     middle_frame.columnconfigure(column_max, weight=5)
+
+
+def validate_letter(P):
+    if len(P) == 0:
+        # empty Entry is okay
+        return True
+    elif len(P) == 1 and not P.isdigit():
+        return True
+    else:
+        return False
+
+
+def validate_digit(P):
+    if len(P) == 0:
+        # empty Entry is okay
+        return True
+    elif len(P) == 1 and P.isdigit():
+        return True
+    else:
+        return False
 
 
 def update_left_frame():
@@ -327,11 +359,7 @@ def check_guess(event):
 
         # checking input
         for input in entry_boxes[guess_counter]:
-            if len(input.get()) != 1:  # Check that every inputbox has exactly 1 character
-                mistake_found = True
-                msg = 'Please enter only one character per field'
-                break
-            elif box_counter >= 5:  # check if the last 3 inputboxes are numbers
+            if box_counter >= 5:  # check if the last 3 inputboxes are numbers
                 try:
                     match box_counter:
                         case 5:
