@@ -208,7 +208,7 @@ def build_game_screen():
         fg=txt_color,
         font=('Arial', int(height / 40))
     )
-    right_title.pack(pady=5)
+    right_title.pack(pady=int(height / 20))
     left_title = tk.Label(
         left_frame,
         text='Guess suggestions',
@@ -216,7 +216,7 @@ def build_game_screen():
         fg=txt_color,
         font=('Arial', int(height / 40))
     )
-    left_title.pack(pady=5)
+    left_title.pack(pady=int(height / 20))
     create_middle_frame()
     update_left_frame()
     update_right_frame('')
@@ -232,9 +232,9 @@ def create_middle_frame():
         text='Word500',
         bg=bg_color,
         fg=txt_color,
-        font=('Arial', int(height / 40)),
+        font=('Arial', int(height / 30)),
     )
-    middle_title.grid(row=0, columnspan=column_max + 1, pady=25)
+    middle_title.grid(row=0, columnspan=column_max + 1, pady=int(height / 20))
 
     global entry_boxes
     entry_boxes = []
@@ -263,7 +263,8 @@ def create_middle_frame():
 
             if column != 6:
                 entry = tk.Entry(middle_frame, fg=fg, bg=bg, width=4, font=('Arial', int(height / 50)),
-                                 justify=tk.CENTER, validate='key', validatecommand=v)
+                                 justify=tk.CENTER, validate='key', validatecommand=v,
+                                 disabledforeground=txt_color, disabledbackground=bg)
                 entry.grid(row=row, column=column, padx=2, pady=5, ipady=10)
                 entry_row.append(entry)
         entry_boxes.append(entry_row)
@@ -285,20 +286,33 @@ def create_middle_frame():
 
 
 def validate_letter(P):
+    global entry_boxes
+    global guess_counter
     if len(P) == 0:
-        # empty Entry is okay
         return True
     elif len(P) == 1 and not P.isdigit():
+        # go to next entry
+        for i in range(len(entry_boxes[guess_counter]) - 1):
+            if len(entry_boxes[guess_counter][i].get()) == 0:
+                entry_boxes[guess_counter][i + 1].focus_set()
+                break
         return True
     else:
         return False
 
 
 def validate_digit(P):
+    global entry_boxes
+    global guess_counter
     if len(P) == 0:
         # empty Entry is okay
         return True
     elif len(P) == 1 and P.isdigit():
+        # go to next entry
+        for i in range(len(entry_boxes[guess_counter]) - 1):
+            if len(entry_boxes[guess_counter][i].get()) == 0:
+                entry_boxes[guess_counter][i + 1].focus()
+                break
         return True
     else:
         return False
@@ -310,7 +324,7 @@ def update_left_frame():
         left_list.destroy()
 
     word_list = ''
-    max_words = 30
+    max_words = int(height / 35)
     i = 0
     for word, entropy in words_still_possible.items():
         word_list += word + ': ' + str(entropy)
@@ -388,6 +402,7 @@ def check_guess(event):
                                      font=('Arial', int(height / 60)))
             label_mistake.grid(row=9, columnspan=column_max + 1, pady=10)
         else:
+            #process guess
             if len(words_still_possible) > 4000:  # if words still possible is large (number may be changed)
                 global thread_is_running
                 thread = threading.Thread(target=thread_process_guess, args=(word, green, yellow, red), daemon=True)
@@ -413,7 +428,11 @@ def check_guess(event):
 
             else:
                 words_still_possible = solver.process_guess(word.lower(), green, yellow, red, lookup, words_still_possible)
-            words_still_possible = dict(sorted(words_still_possible.items(), key=lambda item: item[1], reverse=True))  # sort by entropy decreasing
+            # sort by entropy decreasing
+            words_still_possible = dict(sorted(words_still_possible.items(), key=lambda item: item[1], reverse=True))
+            # update window
+            for entry in entry_boxes[guess_counter]:
+                entry.config(state='disabled')
             update_left_frame()
             update_right_frame(word.lower())
             guess_counter += 1

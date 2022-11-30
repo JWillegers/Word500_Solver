@@ -24,6 +24,7 @@ Because github has a 100MB file limit, I provided a split lookup table in this f
 ##Sources
 * 3Blue1Brown video on wordle: https://www.youtube.com/watch?v=v68zYyaEmEA
     * Corresponding GitHub: https://github.com/3b1b/videos/tree/master/_2022/wordle
-* python unittest: https://docs.python.org/3/library/unittest.html
+* Python unittest: https://docs.python.org/3/library/unittest.html
 * Tkinter: https://realpython.com/python-gui-tkinter/
 * tqdm: https://github.com/tqdm/tqdm
+* Managing Entries: https://stackoverflow.com/questions/44638007/tkinter-when-press-enter-then-it-goes-to-the-next-text-box
