@@ -1,6 +1,5 @@
 import prepare_game
 import reduce_words
-import solver
 
 '''
 TUI without lookuptable, entropy, suggestions

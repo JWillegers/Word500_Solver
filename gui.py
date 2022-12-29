@@ -5,6 +5,7 @@ import solver
 import time
 from preparation import first_guess
 from preparation import lookup_table
+from preparation import frequencies
 
 # change these number for changing screen size
 # warning: some stuff might overlap if numbers are too small
@@ -18,6 +19,7 @@ lookup = None
 label_mistake = None
 left_list = None
 right_frame_label = None
+word_sigmoid = None
 thread_is_running = False
 right_frame_text = ''
 
@@ -28,6 +30,7 @@ input_txt_color = '#DCD7C9'
 
 
 def run():
+    # configure GUI
     global window
     window = tk.Tk(className='Word500 solver by Jonathan Willegers')  # create window
     window.geometry(str(width) + 'x' + str(height))
@@ -35,6 +38,7 @@ def run():
     window.configure(bg=bg_color)
     window.bind('<Return>', check_guess)
 
+    # start GUI
     window.after(200, home_screen)
     window.mainloop()  # show window (and interact with it)
 
@@ -64,6 +68,7 @@ def home_screen():
     label_empty2 = tk.Label(home_frame, text=' ', bg=bg_color, fg=bg_color)
     label_empty2.grid(row=3, columnspan=5, pady=20)
 
+    # load lookup table
     if lookup is None:
         thread = threading.Thread(target=thread_lookup, daemon=True)
         thread_is_running = True
@@ -150,7 +155,9 @@ def home_screen():
 def thread_lookup():
     global lookup
     global thread_is_running
+    global word_sigmoid
     lookup = lookup_table.load_lookup_table(False)
+    word_sigmoid = frequencies.get_sigmoid()
     thread_is_running = False
 
 
@@ -264,7 +271,7 @@ def create_middle_frame():
             if column != 6:
                 entry = tk.Entry(middle_frame, fg=fg, bg=bg, width=4, font=('Arial', int(height / 50)),
                                  justify=tk.CENTER, validate='key', validatecommand=v,
-                                 disabledforeground=txt_color, disabledbackground=bg)
+                                 disabledforeground=fg, disabledbackground=bg)
                 entry.grid(row=row, column=column, padx=2, pady=5, ipady=10)
                 entry_row.append(entry)
         entry_boxes.append(entry_row)
@@ -403,31 +410,27 @@ def check_guess(event):
             label_mistake.grid(row=9, columnspan=column_max + 1, pady=10)
         else:
             #process guess
-            if len(words_still_possible) > 4000:  # if words still possible is large (number may be changed)
-                global thread_is_running
-                thread = threading.Thread(target=thread_process_guess, args=(word, green, yellow, red), daemon=True)
-                thread_is_running = True
-                thread.start()
-                max_dots = 6
-                count_dots = 0
-                processing = tk.Label()
-                while thread_is_running:
-                    processing.destroy()
-                    dots = ''
-                    for d in range(count_dots):
-                        dots += '.'
-                    for space in range(max_dots - count_dots):
-                        dots += ' '
-                    processing = tk.Label(middle_frame, text='Processing guess' + dots, bg=bg_color, fg=txt_color,
-                                          font=('Arial', int(height/50)))
-                    processing.grid(row=9, columnspan=column_max + 1, pady=20)
-                    count_dots = (count_dots + 1) % max_dots
-                    time.sleep(0.25)
-                    window.update()
+            global thread_is_running
+            thread = threading.Thread(target=thread_process_guess, args=(word, green, yellow, red), daemon=True)
+            thread_is_running = True
+            thread.start()
+            max_dots = 6
+            count_dots = 0
+            processing = tk.Label()
+            while thread_is_running:
                 processing.destroy()
-
-            else:
-                words_still_possible = solver.process_guess(word.lower(), green, yellow, red, lookup, words_still_possible)
+                dots = ''
+                for d in range(count_dots):
+                    dots += '.'
+                for space in range(max_dots - count_dots):
+                    dots += ' '
+                processing = tk.Label(middle_frame, text='Processing guess' + dots, bg=bg_color, fg=txt_color,
+                                      font=('Arial', int(height/50)))
+                processing.grid(row=9, columnspan=column_max + 1, pady=20)
+                count_dots = (count_dots + 1) % max_dots
+                time.sleep(0.25)
+                window.update()
+            processing.destroy()
             # sort by entropy decreasing
             words_still_possible = dict(sorted(words_still_possible.items(), key=lambda item: item[1], reverse=True))
             # update window
@@ -453,7 +456,7 @@ def check_guess(event):
 def thread_process_guess(word, green, yellow, red):
     global words_still_possible
     global thread_is_running
-    words_still_possible = solver.process_guess(word.lower(), green, yellow, red, lookup, words_still_possible)
+    words_still_possible = solver.process_guess(word.lower(), green, yellow, red, lookup, words_still_possible, word_sigmoid)
     thread_is_running = False
 
 

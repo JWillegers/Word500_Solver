@@ -10,12 +10,13 @@ the player only gets to know how many letters are green, yellow and red.
 ##Libraries needed
 * Pandas
 * tqdm
+  * Only for running scripts in /preperation
 
 ##Techniques used
 * Having a file that known if we have 2 words, how many greens, yellows and reds we get
 * Build a GUI with tkinter
 * Solver using information theory video from 3B1B
-  * Word frequency [TODO]
+  * Word frequency
   * Entropy: E[information]=sum of all x (p(x) * information)
 
 ##The lookup_table_part folder
