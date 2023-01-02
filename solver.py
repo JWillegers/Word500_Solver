@@ -1,53 +1,5 @@
 import math
 
-''''
-OLD:
-{
-    house: {
-        500: 1,
-        401: 2
-    },
-    mouse: {
-        500: 1,
-        401: 2
-    },
-    rouse: {
-        500: 1,
-        401: 2
-    }
-}
-
-NEW:
-{
-    house: {
-        500: {
-            1.0: 1
-        },
-        401: {
-            1.0: 1
-            0.01: 1
-        }
-    },
-    mouse: {
-        500: {
-            1.0: 1
-        },
-        401: {
-            1.0: 1
-            0.01: 1
-        }
-    },
-    rouse: {
-        500: {
-            0.01: 1
-        },
-        401: {
-            1.0: 2
-        }
-    }
-}
-'''
-
 
 def process_guess(guess, green, yellow, red, lookup, words_still_possible, word_sigmoid):
     value = str(green) + str(yellow) + str(red)
@@ -93,7 +45,41 @@ def process_guess(guess, green, yellow, red, lookup, words_still_possible, word_
         for code in entropy[word].values():
             for key, value in code.items():
                 px = key / sum_word_sigmoid
-                if px > 0:
+                if 0 < px < 1:
                     e += value * px * math.log2(1 / px)
         return_dict[word] = round(e, 2)
     return return_dict
+
+
+def give_n_suggestions(n, words_still_possible, word_freq, turn, uncertainty):
+    '''
+    give each word still possible a score
+    return n with the highest score
+
+    inspired by 3B1B video
+    score = turn * (1 - word frequency * 10000) + (current uncertainty - entropy)
+    This calculation consists of 2 parts
+    The first part gives a score based on how likely it is that we guess correctly this turn.
+    I multiply the word frequency by the turn, such that it has a bigger influence on the score towards the end of the game
+    I do 1 - word frequency instead of word frequency, because the lower the score, the better the suggestion
+    Word frequency ranges from e-05 to e-11, thus I multiple by e04 to get the range form [<-;1e-5) to [<-;1)
+    The second part gives a score based on how much uncertainty we expect to have if we guess incorrectly
+    '''
+    scores = list()  # list of tuples: (word, score, entropy, probability)
+    for word, entropy in words_still_possible.items():
+        score = turn * (1 - word_freq[word] * 10_000) + uncertainty - entropy
+        scores.append((word, score, entropy, word_freq[word]))
+
+    scores_sorted = sorted(scores, key=lambda x:x[1], reverse=False)
+    max_prob = 0.0
+    for key, item in word_freq.items():
+        if key in words_still_possible.keys():
+            max_prob += item
+    return_text = ''
+    for i in range(min(n, len(scores_sorted))):
+        word, score, entropy, freq = scores_sorted[i]
+        probability = 100*freq/max_prob
+        return_text += word + f' {entropy:.2f} {probability:.1f}%'
+        if i + 1 != n:
+            return_text += '\n'
+    return return_text

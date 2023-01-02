@@ -18,6 +18,8 @@ the player only gets to know how many letters are green, yellow and red.
 * Solver using information theory video from 3B1B
   * Word frequency
   * Entropy: E[information]=sum of all x (p(x) * information)
+  * Score based on word frequency and entropy
+    * I'm in no means an expert in choosing a fitting function to calculate the score, so it is heavily inspired by the 3B1B video.
 
 ##The lookup_table_part folder
 Because github has a 100MB file limit, I provided a split lookup table in this folder.

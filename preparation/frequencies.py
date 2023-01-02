@@ -22,3 +22,9 @@ def get_sigmoid():
     for word, x in zip(sorted_words, xs):
         word_sigmoid[word] = max(round(1/(1 + np.exp(-x)), round_factor), math.pow(10, -round_factor))
     return word_sigmoid
+
+
+def get_frequencies():
+    with open('preparation/word_freq.json', 'r') as file:
+        freq_map = json.load(file)
+    return freq_map

@@ -20,8 +20,10 @@ label_mistake = None
 left_list = None
 right_frame_label = None
 word_sigmoid = None
+word_freq = None
 thread_is_running = False
 right_frame_text = ''
+guess_counter = 0
 
 bg_color = '#121212'
 txt_color = '#A27B5C'
@@ -156,8 +158,10 @@ def thread_lookup():
     global lookup
     global thread_is_running
     global word_sigmoid
+    global word_freq
     lookup = lookup_table.load_lookup_table(False)
     word_sigmoid = frequencies.get_sigmoid()
+    word_freq = frequencies.get_frequencies()
     thread_is_running = False
 
 
@@ -218,7 +222,7 @@ def build_game_screen():
     right_title.pack(pady=int(height / 20))
     left_title = tk.Label(
         left_frame,
-        text='Guess suggestions',
+        text='Guess suggestions, with entropy and likeliness',
         bg=bg_color,
         fg=txt_color,
         font=('Arial', int(height / 40))
@@ -330,17 +334,8 @@ def update_left_frame():
     if left_list is not None:
         left_list.destroy()
 
-    word_list = ''
-    max_words = int(height / 35)
-    i = 0
-    for word, entropy in words_still_possible.items():
-        word_list += word + ': ' + str(entropy)
-        i += 1
-        if i == max_words:
-            break
-        else:
-            word_list += '\n'
-    left_list = tk.Label(left_frame, text=word_list, font=('Arial', int(height / 50)), bg=bg_color, fg=txt_color)
+    txt = solver.give_n_suggestions(int(height / 35), words_still_possible, word_freq, guess_counter, round(math.log2(len(words_still_possible)), 2))
+    left_list = tk.Label(left_frame, text=txt, font=('Arial', int(height / 50)), bg=bg_color, fg=txt_color)
     left_list.pack()
 
 
