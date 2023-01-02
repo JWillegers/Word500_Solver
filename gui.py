@@ -222,12 +222,20 @@ def build_game_screen():
     right_title.pack(pady=int(height / 20))
     left_title = tk.Label(
         left_frame,
-        text='Guess suggestions, with entropy and likeliness',
+        text='Guess suggestions',
         bg=bg_color,
         fg=txt_color,
         font=('Arial', int(height / 40))
     )
-    left_title.pack(pady=int(height / 20))
+    left_title.pack(pady=(int(height / 20), 5))
+    left_sub_title = tk.Label(
+        left_frame,
+        text='with entropy and likeliness',
+        bg=bg_color,
+        fg=txt_color,
+        font=('Arial', int(height / 50))
+    )
+    left_sub_title.pack(pady=(5, int(height / 50)))
     create_middle_frame()
     update_left_frame()
     update_right_frame('')
@@ -333,10 +341,38 @@ def update_left_frame():
     global left_list
     if left_list is not None:
         left_list.destroy()
-
-    txt = solver.give_n_suggestions(int(height / 35), words_still_possible, word_freq, guess_counter, round(math.log2(len(words_still_possible)), 2))
-    left_list = tk.Label(left_frame, text=txt, font=('Arial', int(height / 50)), bg=bg_color, fg=txt_color)
+    left_list = tk.Frame(left_frame, bg=bg_color)
     left_list.pack()
+    suggestions = solver.give_n_suggestions(int(height / 40), words_still_possible, word_freq, guess_counter, round(math.log2(len(words_still_possible)), 2))
+    for i in range(len(suggestions)):
+        word, entropy, probability = suggestions[i]
+        label_word = tk.Label(
+            left_list,
+            text=word,
+            bg=bg_color,
+            fg=txt_color,
+            font=('Arial', int(height / 50)),
+            justify=tk.CENTER
+        )
+        label_word.grid(row=i, column=0)
+        label_entropy = tk.Label(
+            left_list,
+            text=str(entropy),
+            bg=bg_color,
+            fg=txt_color,
+            font=('Arial', int(height / 50)),
+            justify=tk.CENTER
+        )
+        label_entropy.grid(row=i, column=1, padx=int(width / 75))
+        label_prob = tk.Label(
+            left_list,
+            text=str(probability) + '%' if probability >= 0.1 else '<0.1%',
+            bg=bg_color,
+            fg=txt_color,
+            font=('Arial', int(height / 50)),
+            justify=tk.CENTER
+        )
+        label_prob.grid(row=i, column=2)
 
 
 def update_right_frame(guess):

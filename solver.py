@@ -75,11 +75,9 @@ def give_n_suggestions(n, words_still_possible, word_freq, turn, uncertainty):
     for key, item in word_freq.items():
         if key in words_still_possible.keys():
             max_prob += item
-    return_text = ''
+    return_list = []
     for i in range(min(n, len(scores_sorted))):
         word, score, entropy, freq = scores_sorted[i]
         probability = 100*freq/max_prob
-        return_text += word + f' {entropy:.2f} {probability:.1f}%'
-        if i + 1 != n:
-            return_text += '\n'
-    return return_text
+        return_list.append((word, round(entropy, 2), round(probability, 1)))
+    return return_list
