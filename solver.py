@@ -4,6 +4,7 @@ import math
 def process_guess(guess, green, yellow, red, lookup, words_still_possible, word_sigmoid):
     value = str(green) + str(yellow) + str(red)
     entropy = {}
+    sum_word_sigmoid = 0
     # filter out old words and fill the 'entropy buckets'
     for word1 in words_still_possible.keys():
         if lookup.loc[guess][word1] == value:
@@ -13,7 +14,7 @@ def process_guess(guess, green, yellow, red, lookup, words_still_possible, word_
             for g in range(6):
                 for y in range(6 - g):
                     code = str(g) + str(y) + str(5 - g - y)
-                    entropy[word1][code] = dict()
+                    entropy[word1][code] = 0
 
             # loop over all already checked and accepted words
             for word2 in entropy.keys():
@@ -21,32 +22,21 @@ def process_guess(guess, green, yellow, red, lookup, words_still_possible, word_
                     code = lookup.loc[word1][word2]
                     word2_sigmoid = word_sigmoid[word2]
                     # add other word sigmoid if needed
-                    if word2_sigmoid not in entropy[word1][code].keys():
-                        entropy[word1][code][word2_sigmoid] = 1
-                    else:
-                        entropy[word1][code][word2_sigmoid] += 1
-
-                    if word1_sigmoid not in entropy[word2][code].keys():
-                        entropy[word2][code][word1_sigmoid] = 1
-                    else:
-                        entropy[word2][code][word1_sigmoid] += 1
+                    entropy[word1][code] += word2_sigmoid
+                    entropy[word2][code] += word1_sigmoid
                 else:
-                    entropy[word1]['500'][word1_sigmoid] = 1
-
-    # sum_word_sigmoid for words in words still possible
-    sum_word_sigmoid = 0
-    for w in words_still_possible.keys():
-        sum_word_sigmoid += word_sigmoid[w]
+                    entropy[word1]['500'] = word1_sigmoid
+                    sum_word_sigmoid += word1_sigmoid
 
     # calculate entropy
     return_dict = {}
+    sum_word_sigmoid = round(sum_word_sigmoid, 5)
     for word in entropy.keys():
         e = 0
-        for code in entropy[word].values():
-            for key, value in code.items():
-                px = key / sum_word_sigmoid
-                if 0 < px < 1:
-                    e += value * px * math.log2(1 / px)
+        for value in entropy[word].values():
+            px = value / sum_word_sigmoid
+            if 0 < px < 1:
+                e += px * math.log2(1 / px)
         return_dict[word] = round(e, 2)
     return return_dict
 

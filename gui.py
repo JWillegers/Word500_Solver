@@ -462,8 +462,6 @@ def check_guess(event):
                 time.sleep(0.25)
                 window.update()
             processing.destroy()
-            # sort by entropy decreasing
-            words_still_possible = dict(sorted(words_still_possible.items(), key=lambda item: item[1], reverse=True))
             # update window
             for entry in entry_boxes[guess_counter]:
                 entry.config(state='disabled')
