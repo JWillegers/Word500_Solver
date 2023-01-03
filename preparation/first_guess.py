@@ -2,7 +2,7 @@ from copy import deepcopy
 from tqdm import tqdm
 from preparation import lookup_table
 import math
-import frequencies
+from preparation import frequencies
 
 
 def run():
