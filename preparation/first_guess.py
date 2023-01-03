@@ -2,22 +2,24 @@ from copy import deepcopy
 from tqdm import tqdm
 from preparation import lookup_table
 import math
+import frequencies
 
 
 def run():
     with open('allowed_words.txt', 'r') as file:
         possible_words = file.read().split('\n')
+    word_sigmoid = frequencies.get_sigmoid(same_folder=True)
     lt = lookup_table.load_lookup_table(True)
 
-    pw_hard_dict = calculate_entropy(possible_words,  lt)
+    pw_hard_dict = calculate_entropy(possible_words,  lt, word_sigmoid)
     write_to_file('hard', pw_hard_dict)
 
     pw_medium = medium(deepcopy(possible_words))
-    pw_medium_dict = calculate_entropy(pw_medium,  lt)
+    pw_medium_dict = calculate_entropy(pw_medium,  lt, word_sigmoid)
     write_to_file('medium', pw_medium_dict)
 
     pw_easy = easy(pw_medium)
-    pw_easy_dict = calculate_entropy(pw_easy, lt)
+    pw_easy_dict = calculate_entropy(pw_easy, lt, word_sigmoid)
     write_to_file('easy', pw_easy_dict)
 
 
@@ -40,7 +42,7 @@ def medium(possible_words):
     return new_pw
 
 
-def calculate_entropy(possible_words, lookup):
+def calculate_entropy(possible_words, lookup, word_sigmoid):
     # setup dict
     entropy = {}
     for w in possible_words:
@@ -52,24 +54,29 @@ def calculate_entropy(possible_words, lookup):
 
     # loop through all words and find the 'entropy buckets'
     loop_pb = tqdm(total=len(possible_words), desc='Loop through words')
+    sum_word_sigmoid = 0
     for i in range(len(possible_words)):
         word_i = possible_words[i]
+        word_i_sigmoid = word_sigmoid[word_i]
         for j in range(i):
             word_j = possible_words[j]
+            word_j_sigmoid = word_sigmoid[word_j]
             value = lookup.loc[word_i][word_j]
-            entropy[word_i][value] += 1
-            entropy[word_j][value] += 1
-        entropy[word_i]['500'] += 1
+            entropy[word_i][value] += word_j_sigmoid
+            entropy[word_j][value] += word_i_sigmoid
+        entropy[word_i]['500'] += word_i_sigmoid
+        sum_word_sigmoid += word_i_sigmoid
         loop_pb.update(1)
     loop_pb.close()
 
     #calculate entropy
     return_dict = {}
+    sum_word_sigmoid = round(sum_word_sigmoid, 5)
     for w in possible_words:
         e = 0
         for x in entropy[w].values():
-            px = x / len(possible_words)
-            if px > 0:
+            px = x / sum_word_sigmoid
+            if 0 < px < 1:
                 e += px * math.log2(1 / px)
         return_dict[w] = round(e, 2)
     return return_dict

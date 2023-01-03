@@ -52,7 +52,7 @@ def give_n_suggestions(n, words_still_possible, word_freq, turn, uncertainty):
     The first part gives a score based on how likely it is that we guess correctly this turn.
     I multiply the word frequency by the turn, such that it has a bigger influence on the score towards the end of the game
     I do 1 - word frequency instead of word frequency, because the lower the score, the better the suggestion
-    Word frequency ranges from e-05 to e-11, thus I multiple by e04 to get the range form [<-;1e-5) to [<-;1)
+    Word frequency ranges from e-05 to e-11, thus I multiply by e04 to get the range form [<-;1e-5) to [<-;1)
     The second part gives a score based on how much uncertainty we expect to have if we guess incorrectly
     '''
     scores = list()  # list of tuples: (word, score, entropy, probability)

@@ -3,9 +3,13 @@ import math
 import numpy as np
 
 
-def get_sigmoid():
+def get_sigmoid(same_folder=False):
     # word frequency -> sigmoid function (credit to 3B1B)
-    with open('preparation/word_freq.json', 'r') as file:
+    if same_folder:
+        file = 'word_freq.json'
+    else:
+        file = 'preparation/word_freq.json'
+    with open(file, 'r') as file:
         freq_map = json.load(file)
     words = np.array(list(freq_map.keys()))
     freqs = np.array([freq_map[w] for w in words])
