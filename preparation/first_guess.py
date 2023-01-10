@@ -88,8 +88,9 @@ def write_to_file(diff, pw):
             file.write(str(key) + ': ' + str(value) + '\n')
 
 
-def load_words(difficulty):
-    with open('preparation/words_' + difficulty + '.txt', 'r') as file:
+def load_words(difficulty, other_folder=False):
+    prep = '../' if other_folder else ''
+    with open(prep + 'preparation/words_' + difficulty + '.txt', 'r') as file:
         lines = file.read().split('\n')
     return_dict = {}
     for item in lines:

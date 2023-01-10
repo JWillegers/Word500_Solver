@@ -3,10 +3,12 @@ import math
 import numpy as np
 
 
-def get_sigmoid(same_folder=False):
+def get_sigmoid(same_folder=False, other_folder = False):
     # word frequency -> sigmoid function (credit to 3B1B)
     if same_folder:
         file = 'word_freq.json'
+    elif other_folder:
+        file = '../preparation/word_freq.json'
     else:
         file = 'preparation/word_freq.json'
     with open(file, 'r') as file:
@@ -28,7 +30,8 @@ def get_sigmoid(same_folder=False):
     return word_sigmoid
 
 
-def get_frequencies():
-    with open('preparation/word_freq.json', 'r') as file:
+def get_frequencies(other_folder=False):
+    prep = '../' if other_folder else ''
+    with open(prep + 'preparation/word_freq.json', 'r') as file:
         freq_map = json.load(file)
     return freq_map

@@ -4,7 +4,7 @@ import copy
 
 
 def create_lookup_table():
-    #get all allowed words
+    # get all allowed words
     with open('allowed_words.txt', 'r') as file:
         possible_words = file.read().split('\n')
     lookup_table = pd.DataFrame(index=possible_words, columns=possible_words)
@@ -25,8 +25,8 @@ def create_lookup_table():
     split_lookup_table(lookup_table)
 
 
-#input: word like 'house'
-#output: ('house', [('h', 0), ('o', 1), ('u', 2), ('s', 3), ('e', 4)])
+# input: word like 'house'
+# output: ('house', [('h', 0), ('o', 1), ('u', 2), ('s', 3), ('e', 4)])
 def get_charlist_from_word(possible_words, i):
     word_new_row = possible_words[i]  # get word
     list_word_new_row = []  # get char from word
@@ -35,8 +35,8 @@ def get_charlist_from_word(possible_words, i):
     return word_new_row, list_word_new_row
 
 
-#input: 2 words
-#output: amount of greens, yellows, and reds
+# input: 2 words
+# output: amount of greens, yellows, and reds
 def calculate_value(copy_word_new_row, list_word_other_row):
     green = 0
     yellow = 0
@@ -61,7 +61,7 @@ def calculate_value(copy_word_new_row, list_word_other_row):
     return str(green) + str(yellow) + str(5 - green - yellow)
 
 
-#Because github has a file limit of 100MB, I split up the files to be accessable if someone runs my files from github
+# Because github has a file limit of 100MB, I split up the files to be accessable if someone runs my files from github
 def split_lookup_table(lookup_table):
     progress_bar = tqdm(total=13, desc='Creating parts')
     for i in range(13):
@@ -71,7 +71,6 @@ def split_lookup_table(lookup_table):
     progress_bar.close()
 
 
-# ONLY USE THIS ONE FOR FUNCTIONS WHICH ARE IN /PREPARATION OR /UNITTESTS
 def load_lookup_table(folder=False):
     file = ''
     if folder:

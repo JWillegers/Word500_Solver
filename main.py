@@ -183,7 +183,7 @@ def start_game(difficulty):
     global allowed_words
     global words_still_possible
     words_still_possible = first_guess.load_words(difficulty)
-    words_still_possible = dict(sorted(words_still_possible.items(), key=lambda item: item[1], reverse=True)) #sort by entropy decreasing
+    words_still_possible = dict(sorted(words_still_possible.items(), key=lambda item: item[1], reverse=True)) # sort by entropy decreasing
     with open('preparation/allowed_words.txt', 'r') as file:
         allowed_words = file.read().split('\n')
     build_game_screen()

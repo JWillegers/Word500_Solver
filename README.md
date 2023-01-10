@@ -10,7 +10,9 @@ the player only gets to know how many letters are green, yellow and red.
 ##Libraries needed
 * Pandas
 * tqdm
-  * Only for running scripts in /preperation
+  * Only for running scripts in /preperation and /solver_test
+* Matplotlib
+  * Only used in /solver_test
 
 ##Techniques used
 * Having a file that known if we have 2 words, how many greens, yellows and reds we get
