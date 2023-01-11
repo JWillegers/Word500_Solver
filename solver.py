@@ -47,20 +47,26 @@ def give_n_suggestions(n, words_still_possible, word_freq, turn, uncertainty):
     return n with the highest score
 
     inspired by 3B1B video
-    score = turn * (1 - word frequency * 10000) + (current uncertainty - entropy)
+    score = turn * (1 - word frequency / max_value) + (current uncertainty - entropy)
     This calculation consists of 2 parts
     The first part gives a score based on how likely it is that we guess correctly this turn.
     I multiply the word frequency by the turn, such that it has a bigger influence on the score towards the end of the game
     I do 1 - word frequency instead of word frequency, because the lower the score, the better the suggestion
-    Word frequency ranges from e-05 to e-11, thus I multiply by e04 to get the range form [<-;1e-5) to [<-;1)
+    max_value is the highest frequency of words_still_possible.
+    For all frequencies we divide it by max_value to calculate the score.
+    This way the most common word gets 1 = word_freq[word] / max_value
     The second part gives a score based on how much uncertainty we expect to have if we guess incorrectly
     '''
     scores = list()  # list of tuples: (word, score, entropy, probability)
+    max_value = 0
+    for word in words_still_possible.keys():
+        max_value = max(max_value, word_freq[word])
+
     for word, entropy in words_still_possible.items():
-        score = turn * (1 - word_freq[word] * 10_000) + uncertainty - entropy
+        score = turn * (1 - word_freq[word] / max_value) + uncertainty - entropy
         scores.append((word, score, entropy, word_freq[word]))
 
-    scores_sorted = sorted(scores, key=lambda x:x[1], reverse=False)
+    scores_sorted = sorted(scores, key=lambda x: x[1], reverse=False)
     max_prob = 0.0
     for key, item in word_freq.items():
         if key in words_still_possible.keys():
