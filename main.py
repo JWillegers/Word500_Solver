@@ -381,12 +381,16 @@ def update_right_frame(guess):
     global words_still_possible
     global right_frame_label
     global right_frame
+    uncertainty = 0
+    for word in words_still_possible:
+        uncertainty += word_sigmoid[word]
+
     if right_frame_label is not None:
         right_frame_label.destroy()
     if right_frame_text == '':
-        right_frame_text = 'No guesses: ' + str(round(math.log2(len(words_still_possible)), 2)) + '\n\n'
+        right_frame_text = 'No guesses: ' + str(round(math.log2(uncertainty), 2)) + '\n\n'
     else:
-        right_frame_text += guess + ': ' + str(round(math.log2(len(words_still_possible)), 2)) + '\n\n'
+        right_frame_text += guess + ': ' + str(round(math.log2(uncertainty), 2)) + '\n\n'
     right_frame_label = tk.Label(right_frame, text=right_frame_text, font=('Arial', int(height / 50)), bg=bg_color, fg=txt_color)
     right_frame_label.pack()
 
