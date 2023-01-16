@@ -389,8 +389,12 @@ def update_right_frame(guess):
         right_frame_label.destroy()
     if right_frame_text == '':
         right_frame_text = 'No guesses: ' + str(round(math.log2(uncertainty), 2)) + '\n\n'
-    else:
+    elif round(math.log2(uncertainty), 2) >= 1.00:
         right_frame_text += guess + ': ' + str(round(math.log2(uncertainty), 2)) + '\n\n'
+    elif len(words_still_possible.keys()) == 1:
+        right_frame_text += guess + ': 0.0\n\n'
+    else:
+        right_frame_text += guess + ': <1.0\n\n'
     right_frame_label = tk.Label(right_frame, text=right_frame_text, font=('Arial', int(height / 50)), bg=bg_color, fg=txt_color)
     right_frame_label.pack()
 
