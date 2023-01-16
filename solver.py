@@ -47,7 +47,7 @@ def give_n_suggestions(n, words_still_possible, word_freq, turn, uncertainty):
     return n with the highest score
 
     inspired by 3B1B video
-    score = turn * (1 - word frequency / max_value) + (current uncertainty - entropy)
+    score = 1/4 * turn * (1 - word frequency / max_value) + (current uncertainty - entropy)
     This calculation consists of 2 parts
     The first part gives a score based on how likely it is that we guess correctly this turn.
     I multiply the word frequency by the turn, such that it has a bigger influence on the score towards the end of the game
@@ -63,7 +63,7 @@ def give_n_suggestions(n, words_still_possible, word_freq, turn, uncertainty):
         max_value = max(max_value, word_freq[word])
 
     for word, entropy in words_still_possible.items():
-        score = turn * (1 - word_freq[word] / max_value) + uncertainty - entropy
+        score = (turn / 4) * (1 - word_freq[word] / max_value) + uncertainty - entropy
         scores.append((word, score, entropy, word_freq[word]))
 
     scores_sorted = sorted(scores, key=lambda x: x[1], reverse=False)
