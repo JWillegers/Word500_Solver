@@ -41,39 +41,37 @@ def process_guess(guess, green, yellow, red, lookup, words_still_possible, word_
     return return_dict
 
 
-def give_n_suggestions(n, words_still_possible, word_freq, turn, uncertainty):
+def give_n_suggestions(n, words_still_possible, word_freq, word_sigmoid, turn, uncertainty):
     '''
     give each word still possible a score
     return n with the highest score
 
     inspired by 3B1B video
-    score = 1/4 * turn * (1 - word frequency / max_value) + (current uncertainty - entropy)
+    score = turn * (1 - word sigmoid / max_value) + (current uncertainty - entropy)
     This calculation consists of 2 parts
     The first part gives a score based on how likely it is that we guess correctly this turn.
-    I multiply the word frequency by the turn, such that it has a bigger influence on the score towards the end of the game
-    I do 1 - word frequency instead of word frequency, because the lower the score, the better the suggestion
-    max_value is the highest frequency of words_still_possible.
+    I multiply the (1 - word sigmoid / max_value) by the turn, such that it has a bigger influence on the score towards the end of the game
+    I do (1 - word frequency/max_value) instead of word sigmoid/maxvalue, because the lower the score, the better the suggestion
+    max_value is the highest sigmoid of words_still_possible.
     For all frequencies we divide it by max_value to calculate the score.
-    This way the most common word gets 1 = word_freq[word] / max_value
+    This way the most common word gets 1 == word_sigmoid[word] / max_value
     The second part gives a score based on how much uncertainty we expect to have if we guess incorrectly
     '''
     scores = list()  # list of tuples: (word, score, entropy, probability)
     max_value = 0
+    total_sigmoid = 0
     for word in words_still_possible.keys():
-        max_value = max(max_value, word_freq[word])
+        max_value = max(max_value, word_sigmoid[word])
+        total_sigmoid += word_sigmoid[word]
 
     for word, entropy in words_still_possible.items():
-        score = (turn / 4) * (1 - word_freq[word] / max_value) + uncertainty - entropy
-        scores.append((word, score, entropy, word_freq[word]))
+        score = (turn / 4) * (1 - word_sigmoid[word] / max_value) + uncertainty - entropy
+        scores.append((word, score, entropy, word_sigmoid[word]))
 
     scores_sorted = sorted(scores, key=lambda x: x[1], reverse=False)
-    max_prob = 0.0
-    for key, item in word_freq.items():
-        if key in words_still_possible.keys():
-            max_prob += item
     return_list = []
     for i in range(min(n, len(scores_sorted))):
         word, score, entropy, freq = scores_sorted[i]
-        probability = 100*freq/max_prob
+        probability = 100*freq/total_sigmoid
         return_list.append((word, round(entropy, 2), round(probability, 1)))
     return return_list

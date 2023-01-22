@@ -23,11 +23,11 @@ def run():
     for i in range(20):
         histogram[i + 1] = 0
 
-    progress_bar = tqdm(total=len(possible_solutions), desc='Solutions checked')
-
     start_guess = 'tares'  # starting word, make sure there is a file in preparation/second_guess called [guess].txt (e.g. 'tares_v1.txt')
     with open('../preparation/second_guess/' + start_guess + '.txt', 'r') as file:
         second_guess = json.load(file)
+
+    progress_bar = tqdm(total=len(possible_solutions), desc='Solutions checked')
 
     for solution in possible_solutions:
         found_solution = False
@@ -48,7 +48,7 @@ def run():
                 else:
                     current_words_still_possible = solver.process_guess(guess, int(code[0]), int(code[1]), int(code[2]),
                                                                         lookup, current_words_still_possible, word_sigmoid)
-                guess = solver.give_n_suggestions(1, current_words_still_possible, word_freq, guess_counter - 1,
+                guess = solver.give_n_suggestions(1, current_words_still_possible, word_freq, word_sigmoid, guess_counter - 1,
                                                   round(math.log2(len(current_words_still_possible)), 2))[0][0]
                 guess_counter += 1
         progress_bar.update(1)

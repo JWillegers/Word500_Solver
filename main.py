@@ -344,7 +344,7 @@ def update_left_frame():
         left_list.destroy()
     left_list = tk.Frame(left_frame, bg=bg_color)
     left_list.pack()
-    suggestions = solver.give_n_suggestions(int(height / 40), words_still_possible, word_freq, guess_counter, round(math.log2(len(words_still_possible)), 2))
+    suggestions = solver.give_n_suggestions(int(height / 40), words_still_possible, word_freq, word_sigmoid, guess_counter, round(math.log2(len(words_still_possible)), 2))
     for i in range(len(suggestions)):
         word, entropy, probability = suggestions[i]
         label_word = tk.Label(
