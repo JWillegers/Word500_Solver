@@ -65,7 +65,7 @@ def give_n_suggestions(n, words_still_possible, word_freq, word_sigmoid, turn, u
         total_sigmoid += word_sigmoid[word]
 
     for word, entropy in words_still_possible.items():
-        score = (turn / 4) * (1 - word_sigmoid[word] / max_value) + uncertainty - entropy
+        score = (turn / 2) * (1 - word_sigmoid[word] / max_value) + uncertainty - entropy
         scores.append((word, score, entropy, word_sigmoid[word]))
 
     scores_sorted = sorted(scores, key=lambda x: x[1], reverse=False)

@@ -1,3 +1,4 @@
+import json
 import math
 import threading
 import tkinter as tk
@@ -6,6 +7,7 @@ import time
 from preparation import first_guess
 from preparation import lookup_table
 from preparation import frequencies
+from os import path
 
 
 # change these number for changing screen size
@@ -22,6 +24,7 @@ left_list = None
 right_frame_label = None
 word_sigmoid = None
 word_freq = None
+difficulty = None
 thread_is_running = False
 right_frame_text = ''
 guess_counter = 0
@@ -167,21 +170,28 @@ def thread_lookup():
 
 
 def easy():
-    start_game('easy')
+    global difficulty
+    difficulty = 'easy'
+    start_game()
 
 
 def medium():
-    start_game('medium')
+    global difficulty
+    difficulty = 'medium'
+    start_game()
 
 
 def hard():
-    start_game('hard')
+    global difficulty
+    difficulty = 'hard'
+    start_game()
 
 
 # load necessary .txt files
-def start_game(difficulty):
+def start_game():
     global allowed_words
     global words_still_possible
+    global difficulty
     words_still_possible = first_guess.load_words(difficulty)
     words_still_possible = dict(sorted(words_still_possible.items(), key=lambda item: item[1], reverse=True)) # sort by entropy decreasing
     with open('preparation/allowed_words.txt', 'r') as file:
@@ -433,10 +443,10 @@ def check_guess(event):
                     mistake_found = True
                     msg = 'Please put a number in the green, yellow, and red box'
             else:  # add letter to word
-                word += input.get()
+                word += input.get().lower()
             box_counter += 1
         # check if guess is a valid word
-        if msg == '' and word.lower() not in allowed_words:
+        if msg == '' and word not in allowed_words:
             mistake_found = True
             msg = 'Not a valid word'
         # check that green + yellow + red = 5
@@ -449,9 +459,12 @@ def check_guess(event):
                                      font=('Arial', int(height / 60)))
             label_mistake.grid(row=9, columnspan=column_max + 1, pady=10)
         else:
-            #process guess
+            # process guess
             global thread_is_running
-            thread = threading.Thread(target=thread_process_guess, args=(word, green, yellow, red), daemon=True)
+            if guess_counter == 0 and difficulty == 'hard' and path.exists('./preparation/second_guess/' + word + '.txt'):
+                thread = threading.Thread(target=thread_process_guess, args=(word, green, yellow, red), daemon=True)
+            else:
+                thread = threading.Thread(target=thread_process_guess, args=(word, green, yellow, red), daemon=True)
             thread_is_running = True
             thread.start()
             max_dots = 6
@@ -495,6 +508,16 @@ def thread_process_guess(word, green, yellow, red):
     global words_still_possible
     global thread_is_running
     words_still_possible = solver.process_guess(word.lower(), green, yellow, red, lookup, words_still_possible, word_sigmoid)
+    thread_is_running = False
+
+
+def thread_load_second_guess(word, green, yellow, red):
+    global words_still_possible
+    global thread_is_running
+    with open('/preparation/second_guess/' + word + '.txt', 'r') as file:
+        second_guess = json.load(file)
+    code = str(green) + str(yellow) + str(red)
+    words_still_possible = second_guess[code]
     thread_is_running = False
 
 
