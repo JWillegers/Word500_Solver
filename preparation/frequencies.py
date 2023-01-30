@@ -19,7 +19,7 @@ def get_sigmoid(same_folder=False, other_folder = False):
     sorted_words = words[arg_sort]
     # variables that can be changed, the lower x_width and the higher rounding factor, the higher computation time is
     # IMPORTANT: if x_width or n_common is changed, first_guess.py and second_guess.py need to be run
-    x_width = 50  # range of x in sigmoid function (can be from 0 to 100 or -70 to 30 or something else)
+    x_width = 25  # range of x in sigmoid function (can be from 0 to 100 or -70 to 30 or something else)
     n_common = 3000  # how far from the most common word roughly the point where about halve the words are common enough to be guesses
     round_factor = 3  # by how many decimals do we round
     # calculations
