@@ -27,7 +27,9 @@ def process_guess(guess, green, yellow, red, lookup, words_still_possible, word_
                 else:
                     entropy[word1]['500'] = word1_sigmoid
                     sum_word_sigmoid += word1_sigmoid
-
+    if not entropy:
+        # entropy is emtpy
+        return 'ERROR, no possible words left.\nDid you type everything correctly? Go to homepage and than you can try again.'
     # calculate entropy
     return_dict = {}
     sum_word_sigmoid = round(sum_word_sigmoid, 5)

@@ -26,6 +26,7 @@ word_sigmoid = None
 word_freq = None
 difficulty = None
 thread_is_running = False
+block_typing = False
 right_frame_text = ''
 guess_counter = 0
 
@@ -192,10 +193,12 @@ def start_game():
     global allowed_words
     global words_still_possible
     global difficulty
+    global block_typing
     words_still_possible = first_guess.load_words(difficulty)
     words_still_possible = dict(sorted(words_still_possible.items(), key=lambda item: item[1], reverse=True)) # sort by entropy decreasing
     with open('preparation/allowed_words.txt', 'r') as file:
         allowed_words = file.read().split('\n')
+    block_typing = False
     build_game_screen()
 
 
@@ -318,34 +321,36 @@ def create_middle_frame():
 def validate_letter(P):
     global entry_boxes
     global guess_counter
-    if len(P) == 0:
-        return True
-    elif len(P) == 1 and not P.isdigit():
-        # go to next entry
-        for i in range(len(entry_boxes[guess_counter]) - 1):
-            if len(entry_boxes[guess_counter][i].get()) == 0:
-                entry_boxes[guess_counter][i + 1].focus_set()
-                break
-        return True
-    else:
-        return False
+    global block_typing
+    if not block_typing:
+        if len(P) == 0:
+            return True
+        elif len(P) == 1 and not P.isdigit():
+            # go to next entry
+            for i in range(len(entry_boxes[guess_counter]) - 1):
+                if len(entry_boxes[guess_counter][i].get()) == 0:
+                    entry_boxes[guess_counter][i + 1].focus_set()
+                    break
+            return True
+    return False
 
 
 def validate_digit(P):
     global entry_boxes
     global guess_counter
-    if len(P) == 0:
-        # empty Entry is okay
-        return True
-    elif len(P) == 1 and P.isdigit():
-        # go to next entry
-        for i in range(len(entry_boxes[guess_counter]) - 1):
-            if len(entry_boxes[guess_counter][i].get()) == 0:
-                entry_boxes[guess_counter][i + 1].focus()
-                break
-        return True
-    else:
-        return False
+    global block_typing
+    if not block_typing:
+        if len(P) == 0:
+            # empty Entry is okay
+            return True
+        elif len(P) == 1 and P.isdigit():
+            # go to next entry
+            for i in range(len(entry_boxes[guess_counter]) - 1):
+                if len(entry_boxes[guess_counter][i].get()) == 0:
+                    entry_boxes[guess_counter][i + 1].focus()
+                    break
+            return True
+    return False
 
 
 def update_left_frame():
@@ -415,93 +420,101 @@ def check_guess(event):
     global column_max
     global label_mistake
     global words_still_possible
+    global block_typing
+    if not block_typing:
+        if 'middle_frame' in globals() and 'guess_counter' in globals():  # checking if we are not on main screen
+            global guess_counter
+            mistake_found = False
+            box_counter = 0  # input box
+            msg = ''  # error message
+            word = ''  # guessed word
+            green = 0
+            yellow = 0
+            red = 0
+            if not label_mistake == None:  # destroy old label_mistake
+                label_mistake.destroy()
 
-    if 'middle_frame' in globals() and 'guess_counter' in globals():  # checking if we are not on main screen
-        global guess_counter
-        mistake_found = False
-        box_counter = 0  # input box
-        msg = ''  # error message
-        word = ''  # guessed word
-        green = 0
-        yellow = 0
-        red = 0
-        if not label_mistake == None:  # destroy old label_mistake
-            label_mistake.destroy()
-
-        # checking input
-        for input in entry_boxes[guess_counter]:
-            if box_counter >= 5:  # check if the last 3 inputboxes are numbers
-                try:
-                    match box_counter:
-                        case 5:
-                            green = int(input.get())
-                        case 6:
-                            yellow = int(input.get())
-                        case 7:
-                            red = int(input.get())
-                except:
-                    mistake_found = True
-                    msg = 'Please put a number in the green, yellow, and red box'
-            else:  # add letter to word
-                word += input.get().lower()
-            box_counter += 1
-        # check if guess is a valid word
-        if msg == '' and word not in allowed_words:
-            mistake_found = True
-            msg = 'Not a valid word'
-        # check that green + yellow + red = 5
-        elif msg == '' and green + yellow + red != 5:
-            mistake_found = True
-            msg = 'Numbers in the green, yellow and red box should add up to 5'
-        # display messages or process guess
-        if mistake_found:
-            label_mistake = tk.Label(middle_frame, text=msg, bg=bg_color, fg=txt_color,
-                                     font=('Arial', int(height / 60)))
-            label_mistake.grid(row=9, columnspan=column_max + 1, pady=10)
-        else:
-            # process guess
-            global thread_is_running
-            if guess_counter == 0 and difficulty == 'hard' and path.exists('./preparation/second_guess/' + word + '.txt'):
-                thread = threading.Thread(target=thread_process_guess, args=(word, green, yellow, red), daemon=True)
+            # checking input
+            for input in entry_boxes[guess_counter]:
+                if box_counter >= 5:  # check if the last 3 inputboxes are numbers
+                    try:
+                        match box_counter:
+                            case 5:
+                                green = int(input.get())
+                            case 6:
+                                yellow = int(input.get())
+                            case 7:
+                                red = int(input.get())
+                    except:
+                        mistake_found = True
+                        msg = 'Please put a number in the green, yellow, and red box'
+                else:  # add letter to word
+                    word += input.get().lower()
+                box_counter += 1
+            # check if guess is a valid word
+            if msg == '' and word not in allowed_words:
+                mistake_found = True
+                msg = 'Not a valid word'
+            # check that green + yellow + red = 5
+            elif msg == '' and green + yellow + red != 5:
+                mistake_found = True
+                msg = 'Numbers in the green, yellow and red box should add up to 5'
+            # display messages or process guess
+            if mistake_found:
+                label_mistake = tk.Label(middle_frame, text=msg, bg=bg_color, fg=txt_color,
+                                         font=('Arial', int(height / 60)))
+                label_mistake.grid(row=9, columnspan=column_max + 1, pady=10)
             else:
-                thread = threading.Thread(target=thread_process_guess, args=(word, green, yellow, red), daemon=True)
-            thread_is_running = True
-            thread.start()
-            max_dots = 6
-            count_dots = 0
-            processing = tk.Label()
-            while thread_is_running:
+                # process guess
+                global thread_is_running
+                if guess_counter == 0 and difficulty == 'hard' and path.exists('./preparation/second_guess/' + word + '.txt'):
+                    thread = threading.Thread(target=thread_process_guess, args=(word, green, yellow, red), daemon=True)
+                else:
+                    thread = threading.Thread(target=thread_process_guess, args=(word, green, yellow, red), daemon=True)
+                thread_is_running = True
+                thread.start()
+                max_dots = 6
+                count_dots = 0
+                processing = tk.Label()
+                while thread_is_running:
+                    processing.destroy()
+                    dots = ''
+                    for d in range(count_dots):
+                        dots += '.'
+                    for space in range(max_dots - count_dots):
+                        dots += ' '
+                    processing = tk.Label(middle_frame, text='Processing guess' + dots, bg=bg_color, fg=txt_color,
+                                          font=('Arial', int(height/50)))
+                    processing.grid(row=9, columnspan=column_max + 1, pady=20)
+                    count_dots = (count_dots + 1) % max_dots
+                    time.sleep(0.25)
+                    window.update()
                 processing.destroy()
-                dots = ''
-                for d in range(count_dots):
-                    dots += '.'
-                for space in range(max_dots - count_dots):
-                    dots += ' '
-                processing = tk.Label(middle_frame, text='Processing guess' + dots, bg=bg_color, fg=txt_color,
-                                      font=('Arial', int(height/50)))
-                processing.grid(row=9, columnspan=column_max + 1, pady=20)
-                count_dots = (count_dots + 1) % max_dots
-                time.sleep(0.25)
-                window.update()
-            processing.destroy()
-            # update window
-            for entry in entry_boxes[guess_counter]:
-                entry.config(state='disabled')
-            update_left_frame()
-            update_right_frame(word.lower())
-            guess_counter += 1
+                msg = ''
+                long_msg = False
+                if isinstance(words_still_possible, str):
+                    msg = words_still_possible
+                    long_msg = True
+                # update window
+                for entry in entry_boxes[guess_counter]:
+                    entry.config(state='disabled')
+                if msg == '':
+                    update_left_frame()
+                    update_right_frame(word.lower())
+                    guess_counter += 1
 
-            # check if game is over
-            msg = ''
-            if green == 5:
-                msg = 'You won!'
-            elif guess_counter == 8:
-                msg = 'You lost'
-            if msg != '':
-                label_end_game = tk.Label(middle_frame, text=msg, bg=bg_color, fg=txt_color, font=('Arial', int(height / 40)))
-                label_end_game.grid(row=9, columnspan=column_max + 1, pady=10)
-                button_end_game = tk.Button(middle_frame, text='Home', bg=input_bg_color, fg=txt_color, font=('Arial', int(height / 40)), command=home)
-                button_end_game.grid(row=10, columnspan=column_max + 1, pady=10, ipadx=10, ipady=5)
+                # check if game is over
+                if green == 5:
+                    msg = 'You won!'
+                elif guess_counter == 8:
+                    msg = 'You lost'
+                if msg != '':
+                    block_typing = True
+                    font_size = int(height / 55) if long_msg else int(height / 40)
+                    label_end_game = tk.Label(middle_frame, text=msg, bg=bg_color, fg=txt_color, font=('Arial', font_size))
+                    label_end_game.grid(row=9, columnspan=column_max + 1, pady=10)
+                    button_end_game = tk.Button(middle_frame, text='Home', bg=input_bg_color, fg=txt_color, font=('Arial', int(height / 40)), command=home)
+                    button_end_game.grid(row=10, columnspan=column_max + 1, pady=10, ipadx=10, ipady=5)
 
 
 def thread_process_guess(word, green, yellow, red):
