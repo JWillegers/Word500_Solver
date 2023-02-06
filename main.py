@@ -532,13 +532,11 @@ def thread_load_second_guess(word, green, yellow, red):
     global thread_is_running
     code = str(green) + str(yellow) + str(red)
     if word in loaded_second_guess.keys():
-        print('hi')
         words_still_possible = loaded_second_guess[word][code]
     else:
         with open('./preparation/second_guess/' + word + '.txt', 'r') as file:
             second_guess = json.load(file)
         loaded_second_guess[word] = second_guess
-        print('done')
         words_still_possible = second_guess[code]
     thread_is_running = False
 
