@@ -18,6 +18,7 @@ height = 900
 # global variables
 allowed_words = {}
 words_still_possible = {}
+loaded_second_guess = {}
 lookup = None
 label_mistake = None
 left_list = None
@@ -465,10 +466,13 @@ def check_guess(event):
                                          font=('Arial', int(height / 60)))
                 label_mistake.grid(row=9, columnspan=column_max + 1, pady=10)
             else:
+                # lock row
+                for entry in entry_boxes[guess_counter]:
+                    entry.config(state='disabled')
                 # process guess
                 global thread_is_running
                 if guess_counter == 0 and difficulty == 'hard' and path.exists('./preparation/second_guess/' + word + '.txt'):
-                    thread = threading.Thread(target=thread_process_guess, args=(word, green, yellow, red), daemon=True)
+                    thread = threading.Thread(target=thread_load_second_guess, args=(word, green, yellow, red), daemon=True)
                 else:
                     thread = threading.Thread(target=thread_process_guess, args=(word, green, yellow, red), daemon=True)
                 thread_is_running = True
@@ -496,8 +500,6 @@ def check_guess(event):
                     msg = words_still_possible
                     long_msg = True
                 # update window
-                for entry in entry_boxes[guess_counter]:
-                    entry.config(state='disabled')
                 if msg == '':
                     update_left_frame()
                     update_right_frame(word.lower())
@@ -526,11 +528,18 @@ def thread_process_guess(word, green, yellow, red):
 
 def thread_load_second_guess(word, green, yellow, red):
     global words_still_possible
+    global loaded_second_guess
     global thread_is_running
-    with open('/preparation/second_guess/' + word + '.txt', 'r') as file:
-        second_guess = json.load(file)
     code = str(green) + str(yellow) + str(red)
-    words_still_possible = second_guess[code]
+    if word in loaded_second_guess.keys():
+        print('hi')
+        words_still_possible = loaded_second_guess[word][code]
+    else:
+        with open('./preparation/second_guess/' + word + '.txt', 'r') as file:
+            second_guess = json.load(file)
+        loaded_second_guess[word] = second_guess
+        print('done')
+        words_still_possible = second_guess[code]
     thread_is_running = False
 
 
