@@ -37,6 +37,9 @@ def run():
         first_guess_bool = True
         guess = copy.deepcopy(start_guess)
         while not (found_solution or max_guesses):
+            uncertainty = 0
+            for word in words_still_possible:
+                uncertainty += word_sigmoid[word]
             code = lookup[guess][solution]
             if code == '500':
                 histogram[guess_counter] += 1
@@ -49,7 +52,7 @@ def run():
                     current_words_still_possible = solver.process_guess(guess, int(code[0]), int(code[1]), int(code[2]),
                                                                         lookup, current_words_still_possible, word_sigmoid)
                 guess = solver.give_n_suggestions(1, current_words_still_possible, word_freq, word_sigmoid, guess_counter - 1,
-                                                  round(math.log2(len(current_words_still_possible)), 2))[0][0]
+                                                  uncertainty)[0][0]
                 guess_counter += 1
         progress_bar.update(1)
     progress_bar.close()

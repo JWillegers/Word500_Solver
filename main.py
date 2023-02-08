@@ -30,6 +30,7 @@ thread_is_running = False
 block_typing = False
 right_frame_text = ''
 guess_counter = 0
+uncertainty = 0
 
 bg_color = '#121212'
 txt_color = '#A27B5C'
@@ -252,8 +253,8 @@ def build_game_screen():
     )
     left_sub_title.pack(pady=(5, int(height / 50)))
     create_middle_frame()
-    update_left_frame()
     update_right_frame('')
+    update_left_frame()
 
 
 def create_middle_frame():
@@ -356,11 +357,12 @@ def validate_digit(P):
 
 def update_left_frame():
     global left_list
+    global uncertainty
     if left_list is not None:
         left_list.destroy()
     left_list = tk.Frame(left_frame, bg=bg_color)
     left_list.pack()
-    suggestions = solver.give_n_suggestions(int(height / 40), words_still_possible, word_freq, word_sigmoid, guess_counter, round(math.log2(len(words_still_possible)), 2))
+    suggestions = solver.give_n_suggestions(int(height / 40), words_still_possible, word_freq, word_sigmoid, guess_counter, uncertainty)
     for i in range(len(suggestions)):
         word, entropy, probability = suggestions[i]
         label_word = tk.Label(
@@ -397,20 +399,23 @@ def update_right_frame(guess):
     global words_still_possible
     global right_frame_label
     global right_frame
+    global uncertainty
     uncertainty = 0
+    max_uncertainty = 0
     for word in words_still_possible:
-        uncertainty += word_sigmoid[word]
+        max_uncertainty += word_sigmoid[word]
+    for word in words_still_possible:
+        px = word_sigmoid[word] / max_uncertainty
+        uncertainty += px * math.log2(1/px)
 
     if right_frame_label is not None:
         right_frame_label.destroy()
     if right_frame_text == '':
-        right_frame_text = 'No guesses: ' + str(round(math.log2(uncertainty), 2)) + '\n\n'
-    elif round(math.log2(uncertainty), 2) >= 1.00:
-        right_frame_text += guess + ': ' + str(round(math.log2(uncertainty), 2)) + '\n\n'
+        right_frame_text = 'No guesses: ' + str(round(uncertainty, 2)) + '\n\n'
     elif len(words_still_possible.keys()) == 1:
         right_frame_text += guess + ': 0.0\n\n'
     else:
-        right_frame_text += guess + ': <1.0\n\n'
+        right_frame_text += guess + ': ' + str(round(uncertainty, 2)) + '\n\n'
     right_frame_label = tk.Label(right_frame, text=right_frame_text, font=('Arial', int(height / 50)), bg=bg_color, fg=txt_color)
     right_frame_label.pack()
 
